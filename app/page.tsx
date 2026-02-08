@@ -80,10 +80,7 @@ export default function Dashboard() {
             name: formData.name,
             industry: formData.industry,
             business_description: formData.brief || '',
-            website: formData.website || null,
-            instagram_username: formData.instagram || null,
-            linkedin_profile: formData.linkedin || null,
-            facebook_page: formData.facebook || null
+            website: formData.website || null
           }
         ])
         .select()
@@ -277,19 +274,11 @@ export default function Dashboard() {
                           <tr key={client.id}>
                             <td>
                               <div className="flex items-center gap-3">
-                                {client.logo_url ? (
-                                  <img 
-                                    src={client.logo_url} 
-                                    alt={client.name}
-                                    className="w-8 h-8 rounded object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-8 h-8 rounded bg-lime-500/20 flex items-center justify-center">
-                                    <span className="text-xs font-bold text-lime-400">
-                                      {client.name.charAt(0)}
-                                    </span>
-                                  </div>
-                                )}
+                                <div className="w-8 h-8 rounded bg-lime-500/20 flex items-center justify-center">
+                                  <span className="text-xs font-bold text-lime-400">
+                                    {client.name.charAt(0)}
+                                  </span>
+                                </div>
                                 <span className="font-medium">{client.name}</span>
                               </div>
                             </td>
@@ -311,7 +300,7 @@ export default function Dashboard() {
                             </td>
                             <td>
                               <span className="badge badge-success">
-                                {client.status}
+                                Activo
                               </span>
                             </td>
                             <td className="text-[var(--dark-text-muted)] text-xs">

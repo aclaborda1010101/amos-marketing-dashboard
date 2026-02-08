@@ -164,19 +164,11 @@ export default function ClientsPage() {
                     <div className="card-content">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
-                        {client.logo_url ? (
-                          <img 
-                            src={client.logo_url} 
-                            alt={client.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-lime-500/20 flex items-center justify-center">
-                            <Building2 className="w-6 h-6 text-lime-400" />
-                          </div>
-                        )}
+                        <div className="w-12 h-12 rounded-lg bg-lime-500/20 flex items-center justify-center">
+                          <Building2 className="w-6 h-6 text-lime-400" />
+                        </div>
                         <span className="badge badge-success">
-                          {client.status}
+                          Activo
                         </span>
                       </div>
 

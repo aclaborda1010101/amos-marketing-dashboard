@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Sidebar } from '@/components/layout/sidebar'
+import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { 
   ArrowLeft, 
@@ -13,7 +15,8 @@ import {
   AlertCircle,
   Target,
   Calendar,
-  DollarSign
+  DollarSign,
+  Megaphone
 } from 'lucide-react'
 
 interface Campaign {
@@ -96,54 +99,62 @@ export default function CampaignsListPage() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen">
+      <Sidebar currentPath="/clients" />
+      
+      <div className="main-content">
         {/* Header */}
-        <div className="mb-8">
-          <Link
-            href={`/clients/${clientId}`}
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver al Cliente
-          </Link>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">
-                Campañas
-              </h1>
-              <p className="text-slate-600">
-                Gestiona todas las campañas de marketing del cliente
-              </p>
+        <header className="app-header">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-2 text-sm">
+              <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Dashboard
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
+              <a href="/clients" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Clientes
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
+              <a href={`/clients/${clientId}`} className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Cliente
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
+              <Megaphone className="w-5 h-5 text-lime-400" />
+              <span className="text-white font-medium">Campañas</span>
             </div>
-            
-            <button
-              onClick={() => router.push(`/clients/${clientId}/campaigns/new`)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              Nueva Campaña
-            </button>
           </div>
-        </div>
+
+          <div className="flex items-center gap-3">
+            <Button 
+              className="btn-primary" 
+              size="sm"
+              onClick={() => router.push(`/clients/${clientId}/campaigns/new`)}
+            >
+              <Plus className="w-4 h-4" />
+              Nueva Campaña
+            </Button>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="p-6">
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-            <p className="mt-4 text-slate-600">Cargando campañas...</p>
+          <div className="p-12 text-center">
+            <div className="w-8 h-8 border-2 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-sm text-[var(--dark-text-muted)] mt-4">Cargando campañas...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && !loading && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-red-700 font-medium mb-2">{error}</p>
+          <div className="p-6 bg-red-500/20 border border-red-500/50 rounded-lg">
+            <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-4" />
+            <p className="text-red-400 font-medium mb-2 text-center">{error}</p>
             <button
               onClick={loadCampaigns}
-              className="text-red-600 hover:text-red-700 text-sm underline"
+              className="text-red-400 hover:text-red-300 text-sm underline block mx-auto"
             >
               Reintentar
             </button>
@@ -152,23 +163,23 @@ export default function CampaignsListPage() {
 
         {/* Empty State */}
         {!loading && !error && campaigns.length === 0 && (
-          <div className="bg-white rounded-2xl p-12 shadow-lg border border-slate-200 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <TrendingUp className="w-10 h-10 text-white" />
+          <div className="card-dark">
+            <div className="card-content">
+              <div className="empty-state py-12">
+                <Megaphone className="empty-state-icon" />
+                <h4 className="empty-state-title">Sin campañas aún</h4>
+                <p className="empty-state-description max-w-sm mx-auto">
+                  Crea tu primera campaña para empezar a generar resultados
+                </p>
+                <Button 
+                  className="btn-primary mt-6"
+                  onClick={() => router.push(`/clients/${clientId}/campaigns/new`)}
+                >
+                  <Plus className="w-4 h-4" />
+                  Crear Primera Campaña
+                </Button>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">
-              Sin campañas aún
-            </h3>
-            <p className="text-slate-600 mb-6">
-              Crea tu primera campaña para empezar a generar resultados
-            </p>
-            <button
-              onClick={() => router.push(`/clients/${clientId}/campaigns/new`)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              Crear Primera Campaña
-            </button>
           </div>
         )}
 
@@ -181,49 +192,57 @@ export default function CampaignsListPage() {
                 href={`/clients/${clientId}/campaigns/${campaign.id}`}
                 className="block"
               >
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all hover:scale-105">
-                  {/* Status Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(campaign.status)}`}>
-                      {getStatusIcon(campaign.status)}
-                      {campaign.status}
-                    </span>
-                    <Target className="w-5 h-5 text-slate-400" />
-                  </div>
+                <div className="card-dark hover:border-lime-500/50 transition-all">
+                  <div className="card-content">
+                    {/* Status Badge */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className={`badge ${
+                        campaign.status === 'active' ? 'badge-success' :
+                        campaign.status === 'completed' ? 'badge-success' :
+                        campaign.status === 'paused' ? 'badge-warning' :
+                        'badge-neutral'
+                      }`}>
+                        {getStatusIcon(campaign.status)}
+                        {campaign.status}
+                      </span>
+                      <Target className="w-5 h-5 text-lime-400" />
+                    </div>
 
-                  {/* Campaign Name */}
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">
-                    {campaign.name}
-                  </h3>
+                    {/* Campaign Name */}
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {campaign.name}
+                    </h3>
 
-                  {/* Objective */}
-                  <p className="text-slate-600 text-sm mb-4 line-clamp-2">
-                    {campaign.objective || 'Sin objetivo definido'}
-                  </p>
+                    {/* Objective */}
+                    <p className="text-[var(--dark-text-muted)] text-sm mb-4 line-clamp-2">
+                      {campaign.objective || 'Sin objetivo definido'}
+                    </p>
 
-                  {/* Meta Info */}
-                  <div className="space-y-2 pt-4 border-t border-slate-100">
-                    {campaign.budget && (
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <DollarSign className="w-4 h-4" />
-                        <span>{campaign.budget.toLocaleString('es-ES')} €</span>
-                      </div>
-                    )}
-                    
-                    {(campaign.start_date || campaign.end_date) && (
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {formatDate(campaign.start_date)} - {formatDate(campaign.end_date)}
-                        </span>
-                      </div>
-                    )}
+                    {/* Meta Info */}
+                    <div className="space-y-2 pt-4 border-t border-[var(--dark-border)]">
+                      {campaign.budget && (
+                        <div className="flex items-center gap-2 text-sm text-[var(--dark-text-muted)]">
+                          <DollarSign className="w-4 h-4" />
+                          <span>{campaign.budget.toLocaleString('es-ES')} €</span>
+                        </div>
+                      )}
+                      
+                      {(campaign.start_date || campaign.end_date) && (
+                        <div className="flex items-center gap-2 text-sm text-[var(--dark-text-muted)]">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {formatDate(campaign.start_date)} - {formatDate(campaign.end_date)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         )}
+        </main>
       </div>
     </div>
   )

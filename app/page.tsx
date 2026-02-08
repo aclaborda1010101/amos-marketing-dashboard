@@ -69,41 +69,22 @@ export default function Dashboard() {
         logoUrl = publicUrl
       }
 
-      // Create client (using demo user ID - TODO: implement real auth)
-      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001'
-      
+      // Create client
       const { data, error } = await supabase
         .from('clients')
         .insert([
           {
-            user_id: DEMO_USER_ID,
             name: formData.name,
             industry: formData.industry,
-            business_description: formData.brief || '',
-            website: formData.website || null
+            brief: formData.brief || '',
+            website: formData.website || null,
+            status: 'active'
           }
         ])
         .select()
         .single()
       
       if (error) throw error
-
-      // Create client state
-      await supabase
-        .from('client_state')
-        .insert([{ client_id: data.id }])
-
-      // Emit event
-      await supabase
-        .from('events')
-        .insert([
-          {
-            event_type: 'client.created',
-            client_id: data.id,
-            source: 'dashboard',
-            payload: { name: formData.name, industry: formData.industry }
-          }
-        ])
 
       // Reload clients
       await loadClients()
@@ -274,11 +255,19 @@ export default function Dashboard() {
                           <tr key={client.id}>
                             <td>
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-lime-500/20 flex items-center justify-center">
-                                  <span className="text-xs font-bold text-lime-400">
-                                    {client.name.charAt(0)}
-                                  </span>
-                                </div>
+                                {client.logo_url ? (
+                                  <img 
+                                    src={client.logo_url} 
+                                    alt={client.name}
+                                    className="w-8 h-8 rounded object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 rounded bg-lime-500/20 flex items-center justify-center">
+                                    <span className="text-xs font-bold text-lime-400">
+                                      {client.name.charAt(0)}
+                                    </span>
+                                  </div>
+                                )}
                                 <span className="font-medium">{client.name}</span>
                               </div>
                             </td>
@@ -300,7 +289,7 @@ export default function Dashboard() {
                             </td>
                             <td>
                               <span className="badge badge-success">
-                                Activo
+                                {client.status}
                               </span>
                             </td>
                             <td className="text-[var(--dark-text-muted)] text-xs">

@@ -104,7 +104,7 @@ export default function ClientDetailPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="badge badge-success">Activo</span>
+            <span className="badge badge-success">{client.status}</span>
           </div>
         </header>
 

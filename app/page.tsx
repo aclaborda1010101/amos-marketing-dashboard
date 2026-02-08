@@ -6,7 +6,6 @@ import {
   Plus, 
   Search, 
   Filter,
-  MoreHorizontal,
   TrendingUp,
   TrendingDown,
   Users,
@@ -14,11 +13,10 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  AlertCircle
+  Sparkles
 } from "lucide-react"
 
 export default function Dashboard() {
-  // Mock data - En producción vendría de la API
   const stats: Array<{
     label: string
     value: string
@@ -56,16 +54,11 @@ export default function Dashboard() {
     }
   ]
 
-  const recentClients = [
-    // Empty por ahora
-  ]
-
-  const recentActivity = [
-    // Empty por ahora
-  ]
+  const recentClients: any[] = []
+  const recentActivity: any[] = []
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen">
       <Sidebar currentPath="/" />
       
       <div className="main-content">
@@ -73,12 +66,12 @@ export default function Dashboard() {
         <header className="app-header">
           <div className="flex items-center gap-4 flex-1">
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-900 font-medium">Dashboard</span>
+              <span className="text-white font-medium">Dashboard</span>
             </div>
             
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
                 <input
                   type="text"
                   placeholder="Buscar clientes, campañas..."
@@ -107,10 +100,10 @@ export default function Dashboard() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <div key={stat.label} className="stat-card">
+                <div key={stat.label} className="stat-card hover:border-lime-500/50 transition-all">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-gray-600" />
+                    <div className="w-10 h-10 bg-[var(--dark-surface-hover)] rounded-lg flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-lime-400" />
                     </div>
                     {stat.trend === 'up' && (
                       <span className="stat-change positive flex items-center gap-1">
@@ -125,7 +118,7 @@ export default function Dashboard() {
                       </span>
                     )}
                     {stat.trend === 'neutral' && (
-                      <span className="text-xs text-gray-500">{stat.change}</span>
+                      <span className="text-xs text-[var(--dark-text-subtle)]">{stat.change}</span>
                     )}
                   </div>
                   <div className="stat-value mb-1">{stat.value}</div>
@@ -138,10 +131,10 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Recent Clients */}
             <div className="lg:col-span-2">
-              <div className="card-pro">
+              <div className="card-dark">
                 <div className="card-header flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900">Clientes Recientes</h3>
-                  <button className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+                  <h3 className="font-semibold text-white">Clientes Recientes</h3>
+                  <button className="text-sm text-lime-400 hover:text-lime-300 font-medium transition-colors">
                     Ver todos
                   </button>
                 </div>
@@ -181,15 +174,15 @@ export default function Dashboard() {
 
             {/* Activity Feed */}
             <div className="lg:col-span-1">
-              <div className="card-pro">
+              <div className="card-dark">
                 <div className="card-header">
-                  <h3 className="font-semibold text-gray-900">Actividad Reciente</h3>
+                  <h3 className="font-semibold text-white">Actividad Reciente</h3>
                 </div>
                 <div className="card-content">
                   {recentActivity.length === 0 ? (
                     <div className="text-center py-8">
-                      <Clock className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                      <p className="text-sm text-gray-500">
+                      <Clock className="w-10 h-10 mx-auto mb-3 text-[var(--dark-text-subtle)]" />
+                      <p className="text-sm text-[var(--dark-text-muted)]">
                         No hay actividad reciente
                       </p>
                     </div>
@@ -202,24 +195,24 @@ export default function Dashboard() {
               </div>
 
               {/* Quick Actions */}
-              <div className="card-pro mt-4">
+              <div className="card-dark mt-4">
                 <div className="card-header">
-                  <h3 className="font-semibold text-gray-900">Acciones Rápidas</h3>
+                  <h3 className="font-semibold text-white">Acciones Rápidas</h3>
                 </div>
                 <div className="card-content space-y-2">
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <Plus className="w-4 h-4" />
                     <span>Nuevo Cliente</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <Megaphone className="w-4 h-4" />
                     <span>Nueva Campaña</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <Calendar className="w-4 h-4" />
                     <span>Ver Calendario</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <CheckCircle className="w-4 h-4" />
                     <span>Aprobaciones</span>
                   </button>
@@ -230,20 +223,20 @@ export default function Dashboard() {
 
           {/* Pending Approvals Section */}
           <div className="mt-6">
-            <div className="card-pro">
+            <div className="card-dark">
               <div className="card-header flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-900">Aprobaciones Pendientes</h3>
+                  <h3 className="font-semibold text-white">Aprobaciones Pendientes</h3>
                   <span className="badge badge-neutral">0</span>
                 </div>
-                <button className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+                <button className="text-sm text-lime-400 hover:text-lime-300 font-medium transition-colors">
                   Ver todas
                 </button>
               </div>
               <div className="card-content">
                 <div className="text-center py-8">
-                  <CheckCircle className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm text-gray-500">
+                  <CheckCircle className="w-10 h-10 mx-auto mb-3 text-[var(--dark-text-subtle)]" />
+                  <p className="text-sm text-[var(--dark-text-muted)]">
                     No hay aprobaciones pendientes
                   </p>
                 </div>
@@ -253,29 +246,35 @@ export default function Dashboard() {
 
           {/* System Status */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="card-dark p-4 border-l-2 border-lime-500">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-900">AMOS Core</span>
+                <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-white">ManIAS Core</span>
               </div>
-              <p className="text-xs text-gray-500">Sistema operativo</p>
+              <p className="text-xs text-[var(--dark-text-muted)]">Sistema operativo</p>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="card-dark p-4 border-l-2 border-lime-500">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-900">18 Especialistas</span>
+                <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-white">18 Especialistas</span>
               </div>
-              <p className="text-xs text-gray-500">Listos para trabajar</p>
+              <p className="text-xs text-[var(--dark-text-muted)]">Listos para trabajar</p>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="card-dark p-4 border-l-2 border-yellow-500">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-900">Base de Datos</span>
+                <span className="text-sm font-medium text-white">Base de Datos</span>
               </div>
-              <p className="text-xs text-gray-500">Pendiente configuración</p>
+              <p className="text-xs text-[var(--dark-text-muted)]">Pendiente configuración</p>
             </div>
+          </div>
+
+          {/* Branding Footer */}
+          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[var(--dark-text-subtle)]">
+            <Sparkles className="w-3 h-3 text-lime-500" />
+            <span>Powered by ManIAS Marketing Autonomous System</span>
           </div>
         </main>
       </div>

@@ -28,15 +28,15 @@ const navigation = [
 export function Sidebar({ currentPath = '/' }: SidebarProps) {
   return (
     <aside className="sidebar">
-      {/* Logo */}
-      <div className="px-4 py-5 border-b border-gray-200">
+      {/* Logo ManIAS */}
+      <div className="px-4 py-5 border-b border-[var(--dark-border)]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
+          <div className="w-10 h-10 bg-lime-500 rounded-xl flex items-center justify-center shadow-lg glow-lime">
+            <Sparkles className="w-5 h-5 text-black" />
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-gray-900">AMOS v2.0</h1>
-            <p className="text-xs text-gray-500">Marketing OS</p>
+            <h1 className="text-base font-bold text-white">ManIAS Marketing</h1>
+            <p className="text-xs text-[var(--dark-text-subtle)]">Autonomous System</p>
           </div>
         </div>
       </div>
@@ -61,17 +61,17 @@ export function Sidebar({ currentPath = '/' }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[var(--dark-border)]">
         <div className="flex items-center gap-3">
           <div className="avatar">
             <span>A</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-white truncate">
               Director
             </p>
-            <p className="text-xs text-gray-500 truncate">
-              director@amos.com
+            <p className="text-xs text-[var(--dark-text-muted)] truncate">
+              director@manias.com
             </p>
           </div>
         </div>

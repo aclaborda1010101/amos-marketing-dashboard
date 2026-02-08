@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AMOS v2.0 - Marketing Dashboard',
-  description: 'Autonomous Marketing Operating System',
+  title: 'ManIAS Marketing - Dashboard',
+  description: 'Marketing Autonomous System',
 }
 
 export default function RootLayout({

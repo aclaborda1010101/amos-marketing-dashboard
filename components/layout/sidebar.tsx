@@ -1,84 +1,81 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, 
   Users, 
-  CheckSquare, 
+  Megaphone,
+  Calendar,
+  BarChart3,
+  CheckSquare,
   Settings,
-  Menu,
-  X
-} from 'lucide-react'
-import { useState } from 'react'
+  Sparkles
+} from "lucide-react"
+
+interface SidebarProps {
+  currentPath?: string
+}
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clients', icon: Users },
+  { name: 'Campañas', href: '/campaigns', icon: Megaphone },
+  { name: 'Calendario', href: '/calendar', icon: Calendar },
   { name: 'Aprobaciones', href: '/approvals', icon: CheckSquare },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]
 
-export function Sidebar() {
-  const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
-
+export function Sidebar({ currentPath = '/' }: SidebarProps) {
   return (
-    <>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg"
-      >
-        {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
-
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 
-        transform transition-transform lg:translate-x-0 z-40
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            AMOS v2.0
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Marketing OS</p>
+    <aside className="sidebar">
+      {/* Logo */}
+      <div className="px-4 py-5 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold text-gray-900">AMOS v2.0</h1>
+            <p className="text-xs text-gray-500">Marketing OS</p>
+          </div>
         </div>
+      </div>
 
-        <nav className="px-3 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
-            
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`
-                  flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
-                  ${isActive 
-                    ? 'bg-blue-50 text-blue-600' 
-                    : 'text-slate-600 hover:bg-slate-50'
-                  }
-                `}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </aside>
+      {/* Navigation */}
+      <nav className="px-3 py-4 space-y-1">
+        {navigation.map((item) => {
+          const Icon = item.icon
+          const isActive = currentPath === item.href
+          
+          return (
+            <a
+              key={item.name}
+              href={item.href}
+              className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{item.name}</span>
+            </a>
+          )
+        })}
+      </nav>
 
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-    </>
+      {/* Footer */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="avatar">
+            <span>A</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              Director
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              director@amos.com
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
   )
 }

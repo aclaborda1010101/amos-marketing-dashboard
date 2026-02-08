@@ -1,273 +1,284 @@
 "use client"
 
-import { useState } from "react"
+import { Sidebar } from "@/components/layout/sidebar"
 import { Button } from "@/components/ui/button"
-import { ClientWizard } from "@/components/wizard/client-wizard"
-import type { ClientFormData } from "@/components/wizard/client-wizard"
 import { 
   Plus, 
-  Users, 
-  TrendingUp, 
-  CheckCircle, 
-  Bell,
-  Sparkles,
+  Search, 
+  Filter,
+  MoreHorizontal,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Megaphone,
   Calendar,
-  BarChart3,
-  Zap
+  CheckCircle,
+  Clock,
+  AlertCircle
 } from "lucide-react"
 
 export default function Dashboard() {
-  const [showWizard, setShowWizard] = useState(false)
-  const [clients, setClients] = useState<any[]>([])
-
-  const handleCreateClient = async (data: ClientFormData) => {
-    console.log("Creating client:", data)
-    // TODO: Integrar con API
-    setShowWizard(false)
-    // Aquí iría la llamada a la API
-  }
-
-  // Stats de ejemplo
-  const stats = [
+  // Mock data - En producción vendría de la API
+  const stats: Array<{
+    label: string
+    value: string
+    change: string
+    trend: 'up' | 'down' | 'neutral'
+    icon: any
+  }> = [
     {
-      title: "Clientes Activos",
+      label: "Clientes Activos",
       value: "0",
       change: "+0%",
-      icon: Users,
-      color: "blue"
+      trend: "up",
+      icon: Users
     },
     {
-      title: "Campañas en Curso",
+      label: "Campañas Activas",
       value: "0",
       change: "+0%",
-      icon: TrendingUp,
-      color: "purple"
+      trend: "up",
+      icon: Megaphone
     },
     {
-      title: "Aprobaciones Pendientes",
+      label: "Publicaciones Este Mes",
       value: "0",
-      change: "0 nuevas",
-      icon: CheckCircle,
-      color: "green"
+      change: "+0%",
+      trend: "neutral",
+      icon: Calendar
     },
     {
-      title: "Publicaciones Programadas",
+      label: "Aprobaciones Pendientes",
       value: "0",
-      change: "Esta semana",
-      icon: Calendar,
-      color: "orange"
+      change: "0 urgentes",
+      trend: "neutral",
+      icon: CheckCircle
     }
   ]
 
-  const quickActions = [
-    {
-      title: "Nuevo Cliente",
-      description: "Onboarding completo con wizard",
-      icon: Plus,
-      action: () => setShowWizard(true),
-      primary: true
-    },
-    {
-      title: "Crear Campaña",
-      description: "Lanzar nueva campaña",
-      icon: Zap,
-      action: () => console.log("Nueva campaña"),
-      primary: false
-    },
-    {
-      title: "Ver Calendario",
-      description: "Contenido del mes",
-      icon: Calendar,
-      action: () => console.log("Ver calendario"),
-      primary: false
-    },
-    {
-      title: "Analytics",
-      description: "Métricas y rendimiento",
-      icon: BarChart3,
-      action: () => console.log("Ver analytics"),
-      primary: false
-    }
+  const recentClients = [
+    // Empty por ahora
+  ]
+
+  const recentActivity = [
+    // Empty por ahora
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-      {/* Header */}
-      <header className="glass border-b border-white/20 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900">AMOS v2.0</h1>
-                <p className="text-xs text-slate-600">Marketing Dashboard</p>
-              </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar currentPath="/" />
+      
+      <div className="main-content">
+        {/* Header */}
+        <header className="app-header">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-900 font-medium">Dashboard</span>
             </div>
-
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 rounded-xl hover:bg-white/50 transition-colors">
-                <Bell className="w-5 h-5 text-slate-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </button>
-
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                A
+            
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar clientes, campañas..."
+                  className="search-input pl-10"
+                />
               </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8 animate-slide-in">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
-            ¡Bienvenido! 👋
-          </h2>
-          <p className="text-slate-600">
-            Tu departamento de marketing virtualizado está listo
-          </p>
-        </div>
+          <div className="flex items-center gap-3">
+            <button className="icon-btn">
+              <Filter className="w-4 h-4" />
+            </button>
+            
+            <Button className="btn-primary" size="sm">
+              <Plus className="w-4 h-4" />
+              Nuevo Cliente
+            </Button>
+          </div>
+        </header>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            const colorClasses = {
-              blue: "from-blue-500 to-blue-600",
-              purple: "from-purple-500 to-purple-600",
-              green: "from-green-500 to-green-600",
-              orange: "from-orange-500 to-orange-600"
-            }[stat.color]
-
-            return (
-              <div
-                key={stat.title}
-                className="card-lovable hover-lift animate-slide-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colorClasses} flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="badge-info">{stat.change}</span>
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                  {stat.value}
-                </h3>
-                <p className="text-sm text-slate-600">{stat.title}</p>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4">
-            Acciones Rápidas
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action, index) => {
-              const Icon = action.icon
+        {/* Content */}
+        <main className="p-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {stats.map((stat) => {
+              const Icon = stat.icon
               return (
-                <button
-                  key={action.title}
-                  onClick={action.action}
-                  className={`card-lovable text-left hover-lift transition-all animate-slide-in ${
-                    action.primary ? 'gradient-primary text-white border-none' : ''
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                    action.primary ? 'bg-white/20' : 'bg-slate-100'
-                  }`}>
-                    <Icon className={`w-5 h-5 ${action.primary ? 'text-white' : 'text-slate-600'}`} />
+                <div key={stat.label} className="stat-card">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-gray-600" />
+                    </div>
+                    {stat.trend === 'up' && (
+                      <span className="stat-change positive flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        {stat.change}
+                      </span>
+                    )}
+                    {stat.trend === 'down' && (
+                      <span className="stat-change negative flex items-center gap-1">
+                        <TrendingDown className="w-3 h-3" />
+                        {stat.change}
+                      </span>
+                    )}
+                    {stat.trend === 'neutral' && (
+                      <span className="text-xs text-gray-500">{stat.change}</span>
+                    )}
                   </div>
-                  <h4 className={`font-semibold mb-1 ${action.primary ? 'text-white' : 'text-slate-900'}`}>
-                    {action.title}
-                  </h4>
-                  <p className={`text-sm ${action.primary ? 'text-blue-100' : 'text-slate-600'}`}>
-                    {action.description}
-                  </p>
-                </button>
+                  <div className="stat-value mb-1">{stat.value}</div>
+                  <div className="stat-label">{stat.label}</div>
+                </div>
               )
             })}
           </div>
-        </div>
 
-        {/* Empty State - Clientes */}
-        {clients.length === 0 && (
-          <div className="card-lovable text-center py-16 animate-slide-in">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Users className="w-10 h-10 text-blue-600" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent Clients */}
+            <div className="lg:col-span-2">
+              <div className="card-pro">
+                <div className="card-header flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900">Clientes Recientes</h3>
+                  <button className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+                    Ver todos
+                  </button>
+                </div>
+                <div className="card-content p-0">
+                  {recentClients.length === 0 ? (
+                    <div className="empty-state py-12">
+                      <Users className="empty-state-icon" />
+                      <h4 className="empty-state-title">No hay clientes todavía</h4>
+                      <p className="empty-state-description max-w-sm mx-auto">
+                        Crea tu primer cliente para empezar a gestionar campañas y contenido
+                      </p>
+                      <Button className="btn-primary">
+                        <Plus className="w-4 h-4" />
+                        Crear Cliente
+                      </Button>
+                    </div>
+                  ) : (
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Cliente</th>
+                          <th>Industria</th>
+                          <th>Estado</th>
+                          <th>Campañas</th>
+                          <th>Última Act.</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Datos cuando existan */}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">
-              No tienes clientes todavía
-            </h3>
-            <p className="text-slate-600 mb-6 max-w-md mx-auto">
-              Crea tu primer cliente para empezar a usar AMOS. El wizard te guiará paso a paso.
-            </p>
-            <Button
-              onClick={() => setShowWizard(true)}
-              className="btn-primary gap-2"
-              size="lg"
-            >
-              <Plus className="w-5 h-5" />
-              Crear Primer Cliente
-            </Button>
-          </div>
-        )}
 
-        {/* Features Showcase */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card-lovable">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-              <Sparkles className="w-6 h-6 text-purple-600" />
+            {/* Activity Feed */}
+            <div className="lg:col-span-1">
+              <div className="card-pro">
+                <div className="card-header">
+                  <h3 className="font-semibold text-gray-900">Actividad Reciente</h3>
+                </div>
+                <div className="card-content">
+                  {recentActivity.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Clock className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                      <p className="text-sm text-gray-500">
+                        No hay actividad reciente
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Activity items */}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="card-pro mt-4">
+                <div className="card-header">
+                  <h3 className="font-semibold text-gray-900">Acciones Rápidas</h3>
+                </div>
+                <div className="card-content space-y-2">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <Plus className="w-4 h-4" />
+                    <span>Nuevo Cliente</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <Megaphone className="w-4 h-4" />
+                    <span>Nueva Campaña</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <Calendar className="w-4 h-4" />
+                    <span>Ver Calendario</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Aprobaciones</span>
+                  </button>
+                </div>
+              </div>
             </div>
-            <h4 className="font-semibold text-slate-900 mb-2">
-              18 Especialistas IA
-            </h4>
-            <p className="text-sm text-slate-600">
-              Brand Strategist, Creative Director, Copywriter, Social Media Manager y 14 más trabajando 24/7
-            </p>
           </div>
 
-          <div className="card-lovable">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+          {/* Pending Approvals Section */}
+          <div className="mt-6">
+            <div className="card-pro">
+              <div className="card-header flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-900">Aprobaciones Pendientes</h3>
+                  <span className="badge badge-neutral">0</span>
+                </div>
+                <button className="text-sm text-brand-600 hover:text-brand-700 font-medium">
+                  Ver todas
+                </button>
+              </div>
+              <div className="card-content">
+                <div className="text-center py-8">
+                  <CheckCircle className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                  <p className="text-sm text-gray-500">
+                    No hay aprobaciones pendientes
+                  </p>
+                </div>
+              </div>
             </div>
-            <h4 className="font-semibold text-slate-900 mb-2">
-              Aprobaciones Inteligentes
-            </h4>
-            <p className="text-sm text-slate-600">
-              Revisa y aprueba propuestas. Todo validado con el ADN de marca antes de llegar a ti
-            </p>
           </div>
 
-          <div className="card-lovable">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+          {/* System Status */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-900">AMOS Core</span>
+              </div>
+              <p className="text-xs text-gray-500">Sistema operativo</p>
             </div>
-            <h4 className="font-semibold text-slate-900 mb-2">
-              Analytics en Tiempo Real
-            </h4>
-            <p className="text-sm text-slate-600">
-              Métricas, anomalías y oportunidades detectadas automáticamente
-            </p>
-          </div>
-        </div>
-      </main>
 
-      {/* Wizard Modal */}
-      {showWizard && (
-        <ClientWizard
-          onComplete={handleCreateClient}
-          onCancel={() => setShowWizard(false)}
-        />
-      )}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-900">18 Especialistas</span>
+              </div>
+              <p className="text-xs text-gray-500">Listos para trabajar</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-900">Base de Datos</span>
+              </div>
+              <p className="text-xs text-gray-500">Pendiente configuración</p>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

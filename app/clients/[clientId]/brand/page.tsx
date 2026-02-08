@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
@@ -19,15 +19,40 @@ export default function BrandDNAPage() {
   const clientId = params.clientId as string
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [brandDNA, setBrandDNA] = useState<any>(null)
 
-  const [brandDNA, setBrandDNA] = useState({
-    status: 'approved',
-    values: ['Innovación', 'Transparencia', 'Excelencia'],
-    tone: 'Profesional y cercano',
-    positioning: 'Líder en soluciones tecnológicas',
-    target: 'Empresas B2B tech-savvy',
-    quality_score: 90
-  })
+  // Load existing Brand DNA on mount
+  useEffect(() => {
+    loadBrandDNA()
+  }, [clientId])
+
+  const loadBrandDNA = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
+      
+      const response = await fetch(`${apiUrl}/brand-dna/${clientId}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.brand_dna) {
+          setBrandDNA({
+            status: 'generated',
+            values: data.brand_dna.keywords_mandatory || [],
+            tone: data.brand_dna.tone || '',
+            positioning: data.brand_dna.positioning || '',
+            target: data.brand_dna.target_audience || '',
+            quality_score: Math.round((data.brand_dna.quality_score || 0) * 100),
+            essence: data.brand_dna.essence || '',
+            visual_style: data.brand_dna.visual_style || '',
+            narrative: data.brand_dna.narrative || '',
+            differentiation: data.brand_dna.differentiation || ''
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Error loading brand DNA:', err)
+    }
+  }
 
   const regenerateBrandDNA = async () => {
     setLoading(true)
@@ -51,19 +76,8 @@ export default function BrandDNAPage() {
         throw new Error(errorData.detail || 'Error al generar Brand DNA')
       }
 
-      const data = await response.json()
-      
-      // Actualizar brandDNA con los datos reales
-      if (data.brand_dna) {
-        setBrandDNA({
-          status: 'approved',
-          values: data.brand_dna.keywords_mandatory || [],
-          tone: data.brand_dna.tone || '',
-          positioning: data.brand_dna.positioning || '',
-          target: data.brand_dna.target_audience || '',
-          quality_score: Math.round((data.brand_dna.quality_score || 0) * 100)
-        })
-      }
+      // Reload Brand DNA after generation
+      await loadBrandDNA()
       
     } catch (err: any) {
       setError(err.message || 'Error desconocido')
@@ -130,9 +144,41 @@ export default function BrandDNAPage() {
               <p className="text-red-400">{error}</p>
             </div>
           )}
+
+          {/* Loading State */}
+          {loading && !brandDNA && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-lime-400" />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !brandDNA && (
+            <div className="card-dark">
+              <div className="card-content">
+                <div className="empty-state py-12">
+                  <Zap className="empty-state-icon" />
+                  <h4 className="empty-state-title">No hay Brand DNA generado</h4>
+                  <p className="empty-state-description max-w-sm mx-auto">
+                    Genera el Brand DNA para este cliente para empezar a crear contenido y campañas
+                  </p>
+                  <Button 
+                    className="btn-primary mt-6"
+                    onClick={regenerateBrandDNA}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Generar Brand DNA
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
           
-          {/* Status Card */}
-          <div className="card-dark mb-6">
+          {/* Brand DNA Content */}
+          {brandDNA && (
+            <>
+              {/* Status Card */}
+              <div className="card-dark mb-6">
             <div className="card-content">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -199,6 +245,8 @@ export default function BrandDNAPage() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </main>
       </div>
     </div>

@@ -29,6 +29,7 @@ interface Campaign {
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
+  const [showWizard, setShowWizard] = useState(false)
 
   useEffect(() => {
     loadCampaigns()
@@ -115,7 +116,11 @@ export default function CampaignsPage() {
               <Filter className="w-4 h-4" />
             </button>
             
-            <Button className="btn-primary" size="sm">
+            <Button 
+              className="btn-primary" 
+              size="sm"
+              onClick={() => setShowWizard(true)}
+            >
               <Plus className="w-4 h-4" />
               Nueva Campaña
             </Button>
@@ -165,10 +170,17 @@ export default function CampaignsPage() {
                     Comienza creando tu primera campaña o selecciona un cliente para ver sus campañas activas
                   </p>
                   <div className="flex gap-3 justify-center mt-6">
-                    <Button variant="outline" className="text-white border-[var(--dark-border)]">
+                    <Button 
+                      variant="outline" 
+                      className="text-white border-[var(--dark-border)]"
+                      onClick={() => window.location.href = '/clients'}
+                    >
                       Ver Clientes
                     </Button>
-                    <Button className="btn-primary">
+                    <Button 
+                      className="btn-primary"
+                      onClick={() => setShowWizard(true)}
+                    >
                       <Plus className="w-4 h-4" />
                       Nueva Campaña
                     </Button>
@@ -230,6 +242,33 @@ export default function CampaignsPage() {
           </div>
         </main>
       </div>
+
+      {/* Campaign Wizard Modal (placeholder) */}
+      {showWizard && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-lg p-8 max-w-md mx-4">
+            <h2 className="text-2xl font-bold text-white mb-4">Crear Nueva Campaña</h2>
+            <p className="text-[var(--dark-text-muted)] mb-6">
+              El wizard de campañas estará disponible próximamente.
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowWizard(false)}
+              >
+                Cerrar
+              </Button>
+              <Button 
+                className="btn-primary flex-1"
+                onClick={() => window.location.href = '/clients'}
+              >
+                Ver Clientes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

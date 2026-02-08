@@ -309,7 +309,7 @@ export default function CampaignDetailPage() {
                             {key.replace("_", " ")}:
                           </span>
                           <span className="font-medium">
-                            {Array.isArray(value) ? value.join(", ") : value}
+                            {Array.isArray(value) ? value.join(", ") : String(value)}
                           </span>
                         </div>
                       ))}

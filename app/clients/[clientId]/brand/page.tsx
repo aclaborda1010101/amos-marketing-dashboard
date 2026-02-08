@@ -24,6 +24,7 @@ export default function BrandDNAPage() {
   // Load existing Brand DNA on mount
   useEffect(() => {
     loadBrandDNA()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId])
 
   const loadBrandDNA = async () => {

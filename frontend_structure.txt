@@ -1,0 +1,60 @@
+.
+|-- IMPLEMENTATION_NOTES.md
+|-- README.md
+|-- SETUP_INSTRUCTIONS.md
+|-- app
+|   |-- approvals
+|   |   `-- page.tsx
+|   |-- clients
+|   |   |-- [clientId]
+|   |   |-- new
+|   |   `-- page.tsx
+|   |-- favicon.ico
+|   |-- globals.css
+|   |-- layout.tsx
+|   `-- page.tsx
+|-- components
+|   |-- calendar
+|   |-- campaign
+|   |-- client
+|   |-- dashboard
+|   |-- layout
+|   |   `-- sidebar.tsx
+|   |-- metrics
+|   |-- ui
+|   |   |-- badge.tsx
+|   |   |-- button.tsx
+|   |   |-- card.tsx
+|   |   |-- dialog.tsx
+|   |   |-- dropdown-menu.tsx
+|   |   |-- input.tsx
+|   |   |-- label.tsx
+|   |   |-- progress.tsx
+|   |   |-- select.tsx
+|   |   |-- tabs.tsx
+|   |   |-- textarea.tsx
+|   |   |-- toast.tsx
+|   |   `-- toaster.tsx
+|   `-- wizard
+|       `-- client-wizard.tsx
+|-- components.json
+|-- frontend_structure.txt
+|-- hooks
+|   `-- use-toast.ts
+|-- lib
+|   |-- api.ts
+|   |-- supabase.ts
+|   `-- utils.ts
+|-- next-env.d.ts
+|-- next.config.mjs
+|-- package-lock.json
+|-- package.json
+|-- postcss.config.js
+|-- public
+|   |-- next.svg
+|   `-- vercel.svg
+|-- supabase-schema.sql
+|-- tailwind.config.ts
+`-- tsconfig.json
+
+18 directories, 40 files

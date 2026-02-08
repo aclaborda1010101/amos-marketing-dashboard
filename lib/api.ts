@@ -15,16 +15,11 @@ export async function fetcher(url: string) {
 }
 
 export const api = {
-  // Dashboard - Mock for now (backend doesn't have this endpoint yet)
-  getDashboardSummary: () => Promise.resolve({
-    clients: 0,
-    campaigns: 0,
-    posts: 0,
-    approvals: 0
-  }),
+  // Dashboard
+  getDashboardSummary: () => fetcher('/dashboard/summary'),
   
-  // Clients - Using Supabase directly (backend doesn't have /clients)
-  getClients: () => fetcher('/clients'), // Will 404 - needs backend endpoint
+  // Clients
+  getClients: () => fetcher('/clients'),
   getClient: (id: string) => fetcher(`/client/${id}/state`),
   
   // Brand DNA
@@ -57,15 +52,11 @@ export const api = {
   getClientState: (clientId: string) => fetcher(`/client/${clientId}/state`),
   getClientEvents: (clientId: string) => fetcher(`/client/${clientId}/events`),
   
-  // Specialists - Mock for now
-  getSpecialists: () => Promise.resolve([
-    { id: 'brand-architect', name: 'Brand Architect', status: 'active' },
-    { id: 'content-bot', name: 'Content Bot', status: 'active' },
-    { id: 'intelligence-bot', name: 'Intelligence Bot', status: 'active' }
-  ]),
+  // Specialists
+  getSpecialists: () => fetcher('/specialists'),
   
-  // Campaigns - Mock (backend doesn't have this)
-  getClientCampaigns: (clientId: string) => Promise.resolve([]),
+  // Campaigns
+  getClientCampaigns: (clientId: string) => fetcher(`/clients/${clientId}/campaigns`),
   
   // Calendar - Using backend
   getContentCalendar: (clientId: string, month: string) =>

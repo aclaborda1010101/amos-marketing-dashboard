@@ -1,14 +1,16 @@
-'use client'
+"use client"
 
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { Sidebar } from '@/components/layout/sidebar'
 import { 
-  ArrowLeft, 
+  Users,
   Zap, 
   Calendar, 
-  TrendingUp, 
-  Users,
-  CheckCircle2,
+  TrendingUp,
+  Users as UsersIcon,
+  ArrowRight,
+  CheckCircle,
   Clock,
   AlertCircle
 } from 'lucide-react'
@@ -28,134 +30,146 @@ export default function ClientDetailPage() {
     content_calendar_state: 'approved'
   }
 
-  const departments = [
+  const sections = [
     {
       id: 'brand',
       name: 'Brand DNA',
       icon: Zap,
-      status: client.brand_dna_state,
-      color: 'blue',
+      status: 'approved',
       href: `/clients/${clientId}/brand`,
-      description: 'Identidad y posicionamiento de marca'
+      description: 'Identidad y posicionamiento de marca',
+      stats: { value: '90%', label: 'Quality Score' }
     },
     {
       id: 'campaigns',
       name: 'Campañas',
       icon: TrendingUp,
-      status: client.campaigns_state,
-      color: 'purple',
+      status: 'active',
       href: `/clients/${clientId}/campaigns`,
-      description: '5 campañas activas'
+      description: '5 campañas activas',
+      stats: { value: '5', label: 'Activas' }
     },
     {
       id: 'calendar',
       name: 'Calendario',
       icon: Calendar,
-      status: client.content_calendar_state,
-      color: 'green',
-      href: `/clients/${clientId}/calendar/2024-02`,
-      description: '47 posts este mes'
+      status: 'approved',
+      href: `/clients/${clientId}/calendar`,
+      description: '47 posts este mes',
+      stats: { value: '47', label: 'Posts' }
     },
     {
       id: 'specialists',
       name: 'Especialistas',
-      icon: Users,
-      status: 'standby',
-      color: 'orange',
+      icon: UsersIcon,
+      status: 'active',
       href: `/clients/${clientId}/specialists`,
-      description: '18 especialistas disponibles'
+      description: 'Equipo de bots asignados',
+      stats: { value: '3', label: 'Bots' }
     }
   ]
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved':
-      case 'active':
-        return 'bg-green-100 text-green-700'
-      case 'validated':
-        return 'bg-blue-100 text-blue-700'
-      case 'generated':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'standby':
-        return 'bg-slate-100 text-slate-700'
-      default:
-        return 'bg-slate-100 text-slate-700'
-    }
-  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
       case 'active':
-        return <CheckCircle2 className="w-4 h-4" />
-      case 'validated':
-      case 'generated':
-        return <Clock className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'pending':
+        return <Clock className="w-4 h-4 text-orange-500" />
       default:
-        return <AlertCircle className="w-4 h-4" />
+        return <AlertCircle className="w-4 h-4 text-[var(--dark-text-muted)]" />
     }
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
-        <Link
-          href="/clients"
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver a Clientes
-        </Link>
-
-        {/* Client Header */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200 mb-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">{client.name}</h1>
-              <p className="text-slate-600 mb-4">{client.industry}</p>
-              {client.website && (
-                <a
-                  href={client.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 text-sm"
-                >
-                  {client.website}
-                </a>
-              )}
+    <div className="flex min-h-screen">
+      <Sidebar currentPath="/clients" />
+      
+      <div className="main-content">
+        {/* Header */}
+        <header className="app-header">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-2 text-sm">
+              <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Dashboard
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
+              <a href="/clients" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Clientes
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
+              <Users className="w-5 h-5 text-lime-400" />
+              <span className="text-white font-medium">{client.name}</span>
             </div>
-            <span className="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-700">
-              {client.status}
-            </span>
           </div>
-        </div>
 
-        {/* Departments Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {departments.map((dept) => {
-            const Icon = dept.icon
-            
-            return (
-              <Link key={dept.id} href={dept.href} className="block">
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all hover:scale-105">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-${dept.color}-500 to-${dept.color}-600 flex items-center justify-center`}>
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(dept.status)}`}>
-                      {getStatusIcon(dept.status)}
-                      {dept.status}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">{dept.name}</h3>
-                  <p className="text-slate-600 text-sm">{dept.description}</p>
+          <div className="flex items-center gap-3">
+            <span className="badge badge-success">{client.status}</span>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="p-6">
+          {/* Client Info Card */}
+          <div className="card-dark mb-6">
+            <div className="card-content">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">{client.name}</h1>
+                  <p className="text-[var(--dark-text-muted)] mb-4">{client.industry}</p>
+                  {client.website && (
+                    <a 
+                      href={client.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-lime-400 hover:text-lime-300 transition-colors"
+                    >
+                      {client.website}
+                    </a>
+                  )}
                 </div>
-              </Link>
-            )
-          })}
-        </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sections Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sections.map((section) => {
+              const Icon = section.icon
+              return (
+                <Link
+                  key={section.id}
+                  href={section.href}
+                  className="block"
+                >
+                  <div className="card-dark hover:border-lime-500/50 transition-all cursor-pointer group">
+                    <div className="card-content">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-12 h-12 bg-[var(--dark-surface-hover)] rounded-lg flex items-center justify-center group-hover:bg-lime-500/20 transition-colors">
+                          <Icon className="w-6 h-6 text-lime-400" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(section.status)}
+                          <ArrowRight className="w-4 h-4 text-[var(--dark-text-subtle)] group-hover:text-lime-400 transition-colors" />
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-xl font-semibold text-white mb-2">{section.name}</h3>
+                      <p className="text-sm text-[var(--dark-text-muted)] mb-4">{section.description}</p>
+                      
+                      <div className="pt-4 border-t border-[var(--dark-border)]">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold text-white">{section.stats.value}</span>
+                          <span className="text-sm text-[var(--dark-text-subtle)]">{section.stats.label}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </main>
       </div>
     </div>
   )

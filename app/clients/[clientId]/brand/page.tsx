@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
@@ -9,20 +10,67 @@ import {
   Sparkles,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react'
 
 export default function BrandDNAPage() {
   const params = useParams()
   const clientId = params.clientId as string
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const brandDNA = {
+  const [brandDNA, setBrandDNA] = useState({
     status: 'approved',
     values: ['Innovación', 'Transparencia', 'Excelencia'],
     tone: 'Profesional y cercano',
     positioning: 'Líder en soluciones tecnológicas',
     target: 'Empresas B2B tech-savvy',
     quality_score: 90
+  })
+
+  const regenerateBrandDNA = async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
+      
+      const response = await fetch(`${apiUrl}/generate-brand-dna`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          client_id: clientId
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Error al generar Brand DNA')
+      }
+
+      const data = await response.json()
+      
+      // Actualizar brandDNA con los datos reales
+      if (data.brand_dna) {
+        setBrandDNA({
+          status: 'approved',
+          values: data.brand_dna.keywords_mandatory || [],
+          tone: data.brand_dna.tone || '',
+          positioning: data.brand_dna.positioning || '',
+          target: data.brand_dna.target_audience || '',
+          quality_score: Math.round((data.brand_dna.quality_score || 0) * 100)
+        })
+      }
+      
+    } catch (err: any) {
+      setError(err.message || 'Error desconocido')
+      console.error('Error regenerating brand DNA:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -52,15 +100,37 @@ export default function BrandDNAPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button className="btn-primary" size="sm">
-              <Sparkles className="w-4 h-4" />
-              Regenerar Brand DNA
+            <Button 
+              className="btn-primary" 
+              size="sm"
+              onClick={regenerateBrandDNA}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Regenerar Brand DNA
+                </>
+              )}
             </Button>
           </div>
         </header>
 
         {/* Content */}
         <main className="p-6">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <p className="text-red-400">{error}</p>
+            </div>
+          )}
+          
           {/* Status Card */}
           <div className="card-dark mb-6">
             <div className="card-content">

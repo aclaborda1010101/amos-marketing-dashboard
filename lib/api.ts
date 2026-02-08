@@ -7,42 +7,74 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export async function fetcher(url: string) {
   const res = await fetch(`${API_URL}${url}`)
-  if (!res.ok) throw new Error('API request failed')
+  if (!res.ok) {
+    console.error(`API Error: ${res.status} ${res.statusText} - ${API_URL}${url}`)
+    throw new Error(`API request failed: ${res.status}`)
+  }
   return res.json()
 }
 
 export const api = {
-  // Dashboard
-  getDashboardSummary: () => fetcher('/api/dashboard/summary'),
+  // Dashboard - Mock for now (backend doesn't have this endpoint yet)
+  getDashboardSummary: () => Promise.resolve({
+    clients: 0,
+    campaigns: 0,
+    posts: 0,
+    approvals: 0
+  }),
   
-  // Clients
-  getClients: () => fetcher('/api/clients'),
-  getClient: (id: string) => fetcher(`/api/clients/${id}`),
-  createClient: (data: any) => 
-    fetch(`${API_URL}/api/clients`, {
+  // Clients - Using Supabase directly (backend doesn't have /clients)
+  getClients: () => fetcher('/clients'), // Will 404 - needs backend endpoint
+  getClient: (id: string) => fetcher(`/client/${id}/state`),
+  
+  // Brand DNA
+  generateBrandDNA: (clientId: string, companyInfo: any) =>
+    fetch(`${API_URL}/generate-brand-dna`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ client_id: clientId, company_info: companyInfo })
+    }).then(r => r.json()),
+  
+  // Content Calendar
+  generateContentCalendar: (clientId: string, month: string) =>
+    fetch(`${API_URL}/generate-content-calendar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, month })
     }).then(r => r.json()),
   
   // Approvals
   getApprovals: (status?: string) => 
-    fetcher(`/api/approvals${status ? `?status=${status}` : ''}`),
-  decideApproval: (id: string, decision: 'approved' | 'rejected', comments?: string) =>
-    fetch(`${API_URL}/api/approvals/${id}/decide`, {
+    fetcher(`/approvals${status ? `?status=${status}` : ''}`),
+  decideApproval: (requestId: string, decision: 'approved' | 'rejected', comments?: string) =>
+    fetch(`${API_URL}/approvals/${requestId}/decide`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ decision, comments })
     }).then(r => r.json()),
   
-  // Specialists
-  getSpecialists: () => fetcher('/api/specialists'),
+  // Client State
+  getClientState: (clientId: string) => fetcher(`/client/${clientId}/state`),
+  getClientEvents: (clientId: string) => fetcher(`/client/${clientId}/events`),
   
-  // Campaigns
-  getClientCampaigns: (clientId: string) => 
-    fetcher(`/api/clients/${clientId}/campaigns`),
+  // Specialists - Mock for now
+  getSpecialists: () => Promise.resolve([
+    { id: 'brand-architect', name: 'Brand Architect', status: 'active' },
+    { id: 'content-bot', name: 'Content Bot', status: 'active' },
+    { id: 'intelligence-bot', name: 'Intelligence Bot', status: 'active' }
+  ]),
   
-  // Calendar
+  // Campaigns - Mock (backend doesn't have this)
+  getClientCampaigns: (clientId: string) => Promise.resolve([]),
+  
+  // Calendar - Using backend
   getContentCalendar: (clientId: string, month: string) =>
-    fetcher(`/api/clients/${clientId}/calendar/${month}`)
+    fetch(`${API_URL}/generate-content-calendar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, month })
+    }).then(r => r.json())
 }
+
+// Helper to construct API URLs
+export const apiUrl = (path: string) => `${API_URL}${path}`

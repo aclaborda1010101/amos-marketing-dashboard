@@ -13,7 +13,8 @@ import {
   Building2,
   TrendingUp,
   Calendar,
-  Megaphone
+  Megaphone,
+  Trash2
 } from 'lucide-react'
 
 export default function ClientsPage() {
@@ -38,6 +39,30 @@ export default function ClientsPage() {
       console.error('Error loading clients:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const deleteClient = async (clientId: string, clientName: string, e: React.MouseEvent) => {
+    e.preventDefault() // Evitar navegar al hacer click
+    e.stopPropagation()
+    
+    if (!confirm(`¿Eliminar cliente "${clientName}"? Esta acción no se puede deshacer.`)) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', clientId)
+      
+      if (error) throw error
+      
+      // Recargar lista
+      await loadClients()
+    } catch (error) {
+      console.error('Error deleting client:', error)
+      alert('Error al eliminar cliente')
     }
   }
 
@@ -164,20 +189,31 @@ export default function ClientsPage() {
                     <div className="card-content">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
-                        {client.logo_url ? (
-                          <img 
-                            src={client.logo_url} 
-                            alt={client.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-lime-500/20 flex items-center justify-center">
-                            <Building2 className="w-6 h-6 text-lime-400" />
-                          </div>
-                        )}
-                        <span className="badge badge-success">
-                          {client.status}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          {client.logo_url ? (
+                            <img 
+                              src={client.logo_url} 
+                              alt={client.name}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-lime-500/20 flex items-center justify-center">
+                              <Building2 className="w-6 h-6 text-lime-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="badge badge-success">
+                            {client.status}
+                          </span>
+                          <button
+                            onClick={(e) => deleteClient(client.id, client.name, e)}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                            title="Eliminar cliente"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Info */}

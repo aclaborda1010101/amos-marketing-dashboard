@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link'
 import { 
   LayoutDashboard, 
   Users, 
@@ -28,8 +29,8 @@ const navigation = [
 export function Sidebar({ currentPath = '/' }: SidebarProps) {
   return (
     <aside className="sidebar">
-      {/* Logo ManIAS */}
-      <div className="px-4 py-5 border-b border-[var(--dark-border)]">
+      {/* Logo ManIAS - Clickable */}
+      <Link href="/" className="block px-4 py-5 border-b border-[var(--dark-border)] hover:bg-[var(--dark-surface-hover)] transition-colors cursor-pointer">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-lime-500 rounded-xl flex items-center justify-center shadow-lg glow-lime">
             <Sparkles className="w-5 h-5 text-black" />
@@ -39,7 +40,7 @@ export function Sidebar({ currentPath = '/' }: SidebarProps) {
             <p className="text-xs text-[var(--dark-text-subtle)]">Autonomous System</p>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="px-3 py-4 space-y-1">
@@ -48,14 +49,14 @@ export function Sidebar({ currentPath = '/' }: SidebarProps) {
           const isActive = currentPath === item.href
           
           return (
-            <a
+            <Link
               key={item.name}
               href={item.href}
               className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
             >
               <Icon className="w-4 h-4" />
               <span>{item.name}</span>
-            </a>
+            </Link>
           )
         })}
       </nav>

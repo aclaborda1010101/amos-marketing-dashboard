@@ -64,6 +64,10 @@ export default function AnalyticsPage() {
         <header className="app-header">
           <div className="flex items-center gap-4 flex-1">
             <div className="flex items-center gap-2 text-sm">
+              <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
+                Dashboard
+              </a>
+              <span className="text-[var(--dark-text-subtle)]">/</span>
               <BarChart3 className="w-5 h-5 text-lime-400" />
               <span className="text-white font-medium">Analytics</span>
             </div>

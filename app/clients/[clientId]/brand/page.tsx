@@ -207,7 +207,7 @@ export default function BrandDNAPage() {
               </div>
               <div className="card-content">
                 <div className="flex flex-wrap gap-2">
-                  {brandDNA.values.map((value, index) => (
+                  {brandDNA.values.map((value: string, index: number) => (
                     <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
                       {value}
                     </span>

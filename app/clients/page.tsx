@@ -127,10 +127,12 @@ export default function ClientsPage() {
               <Filter className="w-4 h-4" />
             </button>
             
-            <Button className="btn-primary" size="sm">
-              <Plus className="w-4 h-4" />
-              Nuevo Cliente
-            </Button>
+            <Link href="/clients/new">
+              <Button className="btn-primary" size="sm">
+                <Plus className="w-4 h-4" />
+                Nuevo Cliente
+              </Button>
+            </Link>
           </div>
         </header>
 
@@ -170,10 +172,12 @@ export default function ClientsPage() {
                       <p className="empty-state-description max-w-sm mx-auto">
                         Crea tu primer cliente para empezar a gestionar campañas y contenido
                       </p>
-                      <Button className="btn-primary mt-6">
-                        <Plus className="w-4 h-4" />
-                        Crear Cliente
-                      </Button>
+                      <Link href="/clients/new">
+                        <Button className="btn-primary mt-6">
+                          <Plus className="w-4 h-4" />
+                          Crear Cliente
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>

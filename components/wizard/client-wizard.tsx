@@ -119,17 +119,17 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-slide-in">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-[var(--dark-background)] border border-[var(--dark-border)] rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-slide-in">
         {/* Header */}
-        <div className="gradient-primary p-6 text-white">
+        <div className="bg-gradient-to-r from-lime-500 to-lime-600 p-6 text-black">
           <h2 className="text-2xl font-bold mb-2">Nuevo Cliente</h2>
-          <p className="text-blue-100">Paso {currentStep} de {STEPS.length}</p>
-          <Progress value={progress} className="mt-4 bg-blue-600" />
+          <p className="text-black/70">Paso {currentStep} de {STEPS.length}</p>
+          <Progress value={progress} className="mt-4 bg-lime-700" />
         </div>
 
         {/* Steps Indicator */}
-        <div className="flex justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex justify-between px-6 py-4 border-b border-[var(--dark-border)]">
           {STEPS.map((step) => {
             const Icon = step.icon
             const isActive = step.id === currentStep
@@ -139,12 +139,12 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
               <div
                 key={step.id}
                 className={`flex flex-col items-center gap-2 ${
-                  isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-slate-400'
+                  isActive ? 'text-lime-400' : isCompleted ? 'text-green-500' : 'text-[var(--dark-text-subtle)]'
                 }`}
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isActive ? 'bg-blue-100' : isCompleted ? 'bg-green-100' : 'bg-slate-100'
+                    isActive ? 'bg-lime-500/20' : isCompleted ? 'bg-green-500/20' : 'bg-[var(--dark-surface-hover)]'
                   }`}
                 >
                   {isCompleted ? (
@@ -165,29 +165,29 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
           {currentStep === 1 && (
             <div className="space-y-6 animate-slide-in">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Información Básica</h3>
-                <p className="text-slate-600">Empecemos con los datos fundamentales del cliente</p>
+                <h3 className="text-xl font-semibold text-white mb-2">Información Básica</h3>
+                <p className="text-[var(--dark-text-muted)]">Empecemos con los datos fundamentales del cliente</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Nombre del Cliente *</Label>
+                  <Label className="text-white" htmlFor="name">Nombre del Cliente *</Label>
                   <Input
                     id="name"
                     placeholder="Ej: Agustito Lab"
                     value={formData.name}
                     onChange={(e) => updateField("name", e.target.value)}
-                    className="mt-1"
+                    className="mt-1 bg-[var(--dark-surface)] border-[var(--dark-border)] text-white"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="industry">Industria *</Label>
+                  <Label className="text-white" htmlFor="industry">Industria *</Label>
                   <Select 
                     value={formData.industry} 
                     onValueChange={(value) => updateField("industry", value)}
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-1 bg-[var(--dark-surface)] border-[var(--dark-border)] text-white">
                       <SelectValue placeholder="Selecciona una industria" />
                     </SelectTrigger>
                     <SelectContent>
@@ -207,22 +207,22 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
           {currentStep === 2 && (
             <div className="space-y-6 animate-slide-in">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Presencia Digital</h3>
-                <p className="text-slate-600">¿Dónde podemos encontrar al cliente online?</p>
+                <h3 className="text-xl font-semibold text-white mb-2">Presencia Digital</h3>
+                <p className="text-[var(--dark-text-muted)]">¿Dónde podemos encontrar al cliente online?</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="website">Website *</Label>
+                  <Label className="text-white" htmlFor="website">Website *</Label>
                   <Input
                     id="website"
                     type="url"
                     placeholder="https://ejemplo.com"
                     value={formData.website}
                     onChange={(e) => updateField("website", e.target.value)}
-                    className="mt-1"
+                    className="mt-1 bg-[var(--dark-surface)] border-[var(--dark-border)] text-white"
                   />
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-[var(--dark-text-subtle)] mt-1">
                     Usaremos esta web para analizar la marca y extraer información
                   </p>
                 </div>
@@ -234,16 +234,16 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
           {currentStep === 3 && (
             <div className="space-y-6 animate-slide-in">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Identidad Visual</h3>
-                <p className="text-slate-600">Sube el logo del cliente (opcional)</p>
+                <h3 className="text-xl font-semibold text-white mb-2">Identidad Visual</h3>
+                <p className="text-[var(--dark-text-muted)]">Sube el logo del cliente (opcional)</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="logo">Logo</Label>
+                  <Label className="text-white" htmlFor="logo">Logo</Label>
                   <div className="mt-2 flex items-center gap-4">
                     {logoPreview ? (
-                      <div className="relative w-32 h-32 rounded-xl border-2 border-slate-200 overflow-hidden">
+                      <div className="relative w-32 h-32 rounded-xl border-2 border-[var(--dark-border)] overflow-hidden">
                         <img 
                           src={logoPreview} 
                           alt="Logo preview" 
@@ -251,7 +251,7 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
                         />
                       </div>
                     ) : (
-                      <div className="w-32 h-32 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50">
+                      <div className="w-32 h-32 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-[var(--dark-surface)]">
                         <ImageIcon className="w-8 h-8 text-slate-400" />
                       </div>
                     )}
@@ -270,7 +270,7 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
                       >
                         {logoPreview ? "Cambiar Logo" : "Subir Logo"}
                       </Button>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-[var(--dark-text-subtle)] mt-2">
                         PNG, JPG o SVG. Máximo 5MB.
                       </p>
                     </div>
@@ -284,14 +284,14 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
           {currentStep === 4 && (
             <div className="space-y-6 animate-slide-in">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Brief Inicial</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-semibold text-white mb-2">Brief Inicial</h3>
+                <p className="text-[var(--dark-text-muted)]">
                   Cuéntanos sobre el cliente: objetivos, audiencia, tono, etc.
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="brief">Descripción del Cliente *</Label>
+                <Label className="text-white" htmlFor="brief">Descripción del Cliente *</Label>
                 <Textarea
                   id="brief"
                   placeholder="Ej: Startup de IA que busca posicionarse como líder en automatización empresarial. Target: CTOs y directores de operaciones de empresas medianas. Tono: profesional pero accesible, innovador..."
@@ -299,10 +299,10 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
                   onChange={(e) => updateField("brief", e.target.value)}
                   className="mt-1 min-h-[200px]"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[var(--dark-text-subtle)] mt-1">
                   Mínimo 50 caracteres. Cuanto más detallado, mejor será el ADN de marca.
                 </p>
-                <p className="text-xs text-slate-600 mt-2">
+                <p className="text-xs text-[var(--dark-text-muted)] mt-2">
                   {formData.brief.length} / 50 caracteres
                 </p>
               </div>
@@ -316,8 +316,8 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">¡Todo Listo!</h3>
-                <p className="text-slate-600">
+                <h3 className="text-xl font-semibold text-white mb-2">¡Todo Listo!</h3>
+                <p className="text-[var(--dark-text-muted)]">
                   Revisa los datos antes de crear el cliente
                 </p>
               </div>
@@ -337,23 +337,23 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
                   )}
                   <div>
                     <h4 className="font-semibold">{formData.name}</h4>
-                    <p className="text-sm text-slate-600">{formData.industry}</p>
+                    <p className="text-sm text-[var(--dark-text-muted)]">{formData.industry}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-slate-500">Website</p>
+                    <p className="text-[var(--dark-text-subtle)]">Website</p>
                     <p className="font-medium truncate">{formData.website}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Logo</p>
+                    <p className="text-[var(--dark-text-subtle)]">Logo</p>
                     <p className="font-medium">{logoPreview ? "✓ Subido" : "Sin logo"}</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-slate-500 text-sm mb-2">Brief</p>
+                  <p className="text-[var(--dark-text-subtle)] text-sm mb-2">Brief</p>
                   <p className="text-sm line-clamp-3">{formData.brief}</p>
                 </div>
               </div>

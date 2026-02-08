@@ -27,21 +27,20 @@ export default function Dashboard() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Load clients from Supabase
+  // Load clients from Backend API
   useEffect(() => {
     loadClients()
   }, [])
 
   const loadClients = async () => {
     try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
+      const response = await fetch(`${apiUrl}/clients`)
       
-      if (error) throw error
-      setClients(data || [])
+      if (!response.ok) throw new Error('Failed to load clients')
+      
+      const data = await response.json()
+      setClients(data.clients || [])
     } catch (error) {
       console.error('Error loading clients:', error)
     } finally {

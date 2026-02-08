@@ -69,17 +69,21 @@ export default function Dashboard() {
         logoUrl = publicUrl
       }
 
-      // Create client
+      // Create client (using demo user ID - TODO: implement real auth)
+      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001'
+      
       const { data, error } = await supabase
         .from('clients')
         .insert([
           {
+            user_id: DEMO_USER_ID,
             name: formData.name,
             industry: formData.industry,
-            website: formData.website,
-            brief: formData.brief,
-            logo_url: logoUrl,
-            status: 'active'
+            business_description: formData.brief || '',
+            website: formData.website || null,
+            instagram_username: formData.instagram || null,
+            linkedin_profile: formData.linkedin || null,
+            facebook_page: formData.facebook || null
           }
         ])
         .select()

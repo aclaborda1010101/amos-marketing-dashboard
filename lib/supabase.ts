@@ -7,12 +7,16 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type Client = {
   id: string
+  user_id: string
   name: string
   industry: string
+  business_description: string
   website?: string
-  logo_url?: string
-  brief?: string
-  status: 'active' | 'paused' | 'archived'
+  instagram_username?: string
+  linkedin_profile?: string
+  facebook_page?: string
+  tiktok_username?: string
+  twitter_username?: string
   created_at: string
   updated_at: string
 }

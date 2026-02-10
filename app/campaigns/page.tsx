@@ -3,80 +3,147 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
-import { api, type Campaign } from '@/lib/api'
-import { Plus, Search, Filter, Megaphone, TrendingUp, Users, Calendar, DollarSign, BarChart3 } from 'lucide-react'
+import { api, type Campaign, type ApiClient } from '@/lib/api'
+import { Plus, Search, Filter, Megaphone, TrendingUp, Users, Calendar, DollarSign, BarChart3, Loader2, X, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [clients, setClients] = useState<ApiClient[]>([])
   const [loading, setLoading] = useState(true)
   const [showWizard, setShowWizard] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [wizardStep, setWizardStep] = useState(1)
+  const [form, setForm] = useState({
+    client_id: '',
+    name: '',
+    objective: '',
+    platforms: [] as string[],
+    budget: '',
+    start_date: '',
+    end_date: '',
+  })
 
   useEffect(() => {
-    loadCampaigns()
+    loadData()
   }, [])
 
-  const loadCampaigns = async () => {
+  useEffect(() => {
+    if (error) { const t = setTimeout(() => setError(''), 6000); return () => clearTimeout(t) }
+  }, [error])
+  useEffect(() => {
+    if (success) { const t = setTimeout(() => setSuccess(''), 6000); return () => clearTimeout(t) }
+  }, [success])
+
+  const loadData = async () => {
     try {
-      const data = await api.listCampaigns()
-      setCampaigns(data.campaigns || [])
-    } catch (error) {
-      console.error('Error loading campaigns:', error)
+      const [campaignsRes, clientsRes] = await Promise.all([
+        api.listCampaigns(),
+        api.listClients()
+      ])
+      setCampaigns(campaignsRes.campaigns || [])
+      setClients(clientsRes.clients || [])
+    } catch (err) {
+      console.error('Error loading data:', err)
     } finally {
       setLoading(false)
     }
   }
 
+  const togglePlatform = (p: string) => {
+    setForm(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(p)
+        ? prev.platforms.filter(x => x !== p)
+        : [...prev.platforms, p]
+    }))
+  }
+
+  const handleCreate = async () => {
+    if (!form.client_id || !form.name || !form.objective) {
+      setError('Completa los campos obligatorios: cliente, nombre y objetivo')
+      return
+    }
+    setCreating(true)
+    setError('')
+    try {
+      await api.generateContentCalendar(form.client_id, {
+        campaign_name: form.name,
+        objective: form.objective,
+        platforms: form.platforms,
+        budget: form.budget ? parseFloat(form.budget) : undefined,
+        start_date: form.start_date || undefined,
+        end_date: form.end_date || undefined,
+      })
+      setSuccess('Campa\u00f1a creada exitosamente')
+      setShowWizard(false)
+      setWizardStep(1)
+      setForm({ client_id: '', name: '', objective: '', platforms: [], budget: '', start_date: '', end_date: '' })
+      loadData()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al crear campa\u00f1a'
+      setError(msg)
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const platformOptions = [
+    { id: 'instagram', label: 'Instagram', icon: '\ud83d\udcf7' },
+    { id: 'linkedin', label: 'LinkedIn', icon: '\ud83d\udcbc' },
+    { id: 'tiktok', label: 'TikTok', icon: '\ud83c\udfb5' },
+    { id: 'twitter', label: 'X/Twitter', icon: '\ud83d\udc26' },
+    { id: 'facebook', label: 'Facebook', icon: '\ud83d\udc4d' },
+    { id: 'youtube', label: 'YouTube', icon: '\u25b6\ufe0f' },
+  ]
+
   const stats = [
-    { label: "Campañas Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
-    { label: "Presupuesto Total", value: "€0", change: `${campaigns.length} campañas`, icon: DollarSign, color: "text-blue-500" },
+    { label: "Campa\u00f1as Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
+    { label: "Presupuesto Total", value: "\u20ac0", change: `${campaigns.length} campa\u00f1as`, icon: DollarSign, color: "text-blue-500" },
     { label: "Impresiones", value: "0", change: "Este mes", icon: Users, color: "text-purple-500" },
-    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "Campañas", icon: Calendar, color: "text-orange-500" }
+    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "Campa\u00f1as", icon: Calendar, color: "text-orange-500" }
   ]
 
   return (
     <div className="flex min-h-screen">
       <Sidebar currentPath="/campaigns" />
       <div className="main-content">
-        {/* Header */}
         <header className="app-header">
           <div className="flex items-center gap-4 flex-1">
             <div className="flex items-center gap-2 text-sm">
-              <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">
-                Dashboard
-              </a>
+              <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">Dashboard</a>
               <span className="text-[var(--dark-text-subtle)]">/</span>
               <Megaphone className="w-5 h-5 text-lime-400" />
-              <span className="text-white font-medium">Campañas</span>
-            </div>
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
-                <input
-                  type="text"
-                  placeholder="Buscar campañas..."
-                  className="search-input pl-10"
-                />
-              </div>
+              <span className="text-white font-medium">Campa\u00f1as</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="icon-btn">
-              <Filter className="w-4 h-4" />
-            </button>
-            <Button
-              className="btn-primary"
-              size="sm"
-              onClick={() => setShowWizard(true)}
-            >
-              <Plus className="w-4 h-4" />
-              Nueva Campaña
-            </Button>
-          </div>
+          <Button
+            className="btn-primary"
+            size="sm"
+            onClick={() => { setShowWizard(true); setWizardStep(1) }}
+          >
+            <Plus className="w-4 h-4" />
+            Nueva Campa\u00f1a
+          </Button>
         </header>
 
-        {/* Content */}
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-400" />
+            <span className="text-red-400 text-sm">{error}</span>
+            <button onClick={() => setError('')} className="ml-auto text-red-400"><X className="w-4 h-4" /></button>
+          </div>
+        )}
+        {success && (
+          <div className="mx-6 mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-green-400" />
+            <span className="text-green-400 text-sm">{success}</span>
+            <button onClick={() => setSuccess('')} className="ml-auto text-green-400"><X className="w-4 h-4" /></button>
+          </div>
+        )}
+
         <main className="p-6">
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {stats.map((stat) => {
               const Icon = stat.icon
@@ -95,127 +162,257 @@ export default function CampaignsPage() {
             })}
           </div>
 
-          {/* Campaigns List */}
           <div className="card-dark">
             <div className="card-header flex items-center justify-between">
-              <h3 className="font-semibold text-white">Todas las Campañas</h3>
-              <button className="text-sm text-lime-400 hover:text-lime-300 font-medium transition-colors">
-                Exportar
-              </button>
+              <h2 className="text-white font-semibold">Todas las Campa\u00f1as</h2>
+              <span className="text-sm text-[var(--dark-text-subtle)]">{campaigns.length} total</span>
             </div>
-            <div className="card-content p-0">
-              {loading ? (
-                <div className="p-12 text-center">
-                  <div className="w-8 h-8 border-2 border-lime-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  <p className="text-sm text-[var(--dark-text-muted)] mt-4">Cargando...</p>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
+              </div>
+            ) : campaigns.length === 0 ? (
+              <div className="text-center py-16">
+                <Megaphone className="w-12 h-12 text-[var(--dark-text-subtle)] mx-auto mb-4" />
+                <h3 className="text-white font-semibold text-lg mb-2">No hay campa\u00f1as todav\u00eda</h3>
+                <p className="text-[var(--dark-text-muted)] mb-6">
+                  Crea tu primera campa\u00f1a para empezar a gestionar tu marketing.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button variant="outline" className="text-white border-[var(--dark-border)]" onClick={() => window.location.href = '/clients'}>
+                    Ver Clientes
+                  </Button>
+                  <Button className="btn-primary" onClick={() => { setShowWizard(true); setWizardStep(1) }}>
+                    <Plus className="w-4 h-4" />
+                    Nueva Campa\u00f1a
+                  </Button>
                 </div>
-              ) : campaigns.length === 0 ? (
-                <div className="empty-state py-12">
-                  <Megaphone className="empty-state-icon" />
-                  <h4 className="empty-state-title">No hay campañas todavía</h4>
-                  <p className="empty-state-description max-w-sm mx-auto">
-                    Comienza creando tu primera campaña o selecciona un cliente para ver sus campañas activas
-                  </p>
-                  <div className="flex gap-3 justify-center mt-6">
-                    <Button
-                      variant="outline"
-                      className="text-white border-[var(--dark-border)]"
-                      onClick={() => window.location.href = '/clients'}
-                    >
-                      Ver Clientes
-                    </Button>
-                    <Button
-                      className="btn-primary"
-                      onClick={() => setShowWizard(true)}
-                    >
-                      <Plus className="w-4 h-4" />
-                      Nueva Campaña
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Campaña</th>
-                      <th>Cliente</th>
-                      <th>Objetivo</th>
-                      <th>Presupuesto</th>
-                      <th>Estado</th>
-                      <th>Creada</th>
-                      <th></th>
+              </div>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Campa\u00f1a</th>
+                    <th>Cliente</th>
+                    <th>Objetivo</th>
+                    <th>Presupuesto</th>
+                    <th>Estado</th>
+                    <th>Creada</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campaigns.map((campaign) => (
+                    <tr key={campaign.id || campaign.campaign_id}>
+                      <td className="font-medium text-white">{campaign.name}</td>
+                      <td>{campaign.client_id?.substring(0, 8)}...</td>
+                      <td className="max-w-[200px] truncate">{campaign.objective}</td>
+                      <td>{campaign.budget ? `\u20ac${campaign.budget}` : '-'}</td>
+                      <td>
+                        <span className={`badge ${
+                          campaign.status === 'active' ? 'badge-success' :
+                          campaign.status === 'completed' ? 'badge-info' :
+                          campaign.status === 'paused' ? 'badge-warning' :
+                          'badge-muted'
+                        }`}>
+                          {campaign.status}
+                        </span>
+                      </td>
+                      <td className="text-[var(--dark-text-muted)] text-sm">
+                        {new Date(campaign.submitted_at).toLocaleDateString('es-ES')}
+                      </td>
+                      <td>
+                        <button className="icon-btn">
+                          <BarChart3 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {campaigns.map((campaign) => (
-                      <tr key={campaign.campaign_id}>
-                        <td>
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-lime-500/20 flex items-center justify-center">
-                              <Megaphone className="w-4 h-4 text-lime-400" />
-                            </div>
-                            <span className="font-medium">{campaign.name}</span>
-                          </div>
-                        </td>
-                        <td className="text-[var(--dark-text-muted)]">{campaign.client_id}</td>
-                        <td className="text-[var(--dark-text-muted)]">{campaign.objective}</td>
-                        <td className="text-[var(--dark-text-muted)]">
-                          {campaign.budget?.total ? `€${campaign.budget.total}` : '-'}
-                        </td>
-                        <td>
-                          <span className={`badge ${
-                            campaign.status === 'active' ? 'badge-success' :
-                            campaign.status === 'paused' ? 'badge-warning' :
-                            campaign.status === 'draft' ? 'badge-neutral' :
-                            'badge-muted'
-                          }`}>
-                            {campaign.status}
-                          </span>
-                        </td>
-                        <td className="text-[var(--dark-text-muted)] text-sm">
-                          {new Date(campaign.created_at).toLocaleDateString('es-ES')}
-                        </td>
-                        <td>
-                          <button className="icon-btn">
-                            <BarChart3 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </main>
-      </div>
 
-      {/* Campaign Wizard Modal (placeholder) */}
-      {showWizard && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-lg p-8 max-w-md mx-4">
-            <h2 className="text-2xl font-bold text-white mb-4">Crear Nueva Campaña</h2>
-            <p className="text-[var(--dark-text-muted)] mb-6">
-              El wizard de campañas estará disponible próximamente.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowWizard(false)}
-              >
-                Cerrar
-              </Button>
-              <Button
-                className="btn-primary flex-1"
-                onClick={() => window.location.href = '/clients'}
-              >
-                Ver Clientes
-              </Button>
+        {/* Campaign Wizard Modal */}
+        {showWizard && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-lg p-8 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">
+                  {wizardStep === 1 ? 'Paso 1: Informaci\u00f3n B\u00e1sica' : wizardStep === 2 ? 'Paso 2: Plataformas y Fechas' : 'Paso 3: Confirmar'}
+                </h2>
+                <button onClick={() => setShowWizard(false)} className="text-gray-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="flex gap-2 mb-8">
+                {[1, 2, 3].map(s => (
+                  <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= wizardStep ? 'bg-lime-400' : 'bg-gray-700'}`} />
+                ))}
+              </div>
+
+              {wizardStep === 1 && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Cliente *</label>
+                    <select
+                      value={form.client_id}
+                      onChange={e => setForm(p => ({ ...p, client_id: e.target.value }))}
+                      className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white focus:border-lime-400 focus:outline-none"
+                    >
+                      <option value="">Seleccionar cliente...</option>
+                      {clients.map(c => (
+                        <option key={c.id} value={c.id}>{c.name} - {c.industry}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Nombre de la campa\u00f1a *</label>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                      placeholder="Ej: Lanzamiento Primavera 2026"
+                      className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 focus:border-lime-400 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Objetivo *</label>
+                    <textarea
+                      value={form.objective}
+                      onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
+                      placeholder="Describe el objetivo principal de la campa\u00f1a..."
+                      rows={3}
+                      className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 focus:border-lime-400 focus:outline-none resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Presupuesto (\u20ac)</label>
+                    <input
+                      type="number"
+                      value={form.budget}
+                      onChange={e => setForm(p => ({ ...p, budget: e.target.value }))}
+                      placeholder="Ej: 5000"
+                      className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 focus:border-lime-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 2 && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-3">Plataformas</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {platformOptions.map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => togglePlatform(p.id)}
+                          className={`p-3 rounded-lg border text-left transition-all ${
+                            form.platforms.includes(p.id)
+                              ? 'border-lime-400 bg-lime-400/10 text-white'
+                              : 'border-gray-700 bg-[#1a1a1a] text-gray-400 hover:border-gray-600'
+                          }`}
+                        >
+                          <span className="mr-2">{p.icon}</span>
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-2">Fecha inicio</label>
+                      <input
+                        type="date"
+                        value={form.start_date}
+                        onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))}
+                        className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white focus:border-lime-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-2">Fecha fin</label>
+                      <input
+                        type="date"
+                        value={form.end_date}
+                        onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
+                        className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white focus:border-lime-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 3 && (
+                <div className="space-y-4">
+                  <div className="bg-[#1a1a1a] rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Cliente:</span>
+                      <span className="text-white">{clients.find(c => c.id === form.client_id)?.name || '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Campa\u00f1a:</span>
+                      <span className="text-white">{form.name || '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Objetivo:</span>
+                      <span className="text-white text-right max-w-[250px]">{form.objective || '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Plataformas:</span>
+                      <span className="text-white">{form.platforms.length > 0 ? form.platforms.join(', ') : 'Todas'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Presupuesto:</span>
+                      <span className="text-white">{form.budget ? `\u20ac${form.budget}` : 'No definido'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Periodo:</span>
+                      <span className="text-white">{form.start_date && form.end_date ? `${form.start_date} - ${form.end_date}` : 'No definido'}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Al confirmar, se generar\u00e1 autom\u00e1ticamente un calendario de contenido con publicaciones optimizadas por IA.
+                  </p>
+                </div>
+              )}
+
+              {/* Navigation buttons */}
+              <div className="flex gap-3 mt-8">
+                {wizardStep > 1 && (
+                  <Button variant="outline" className="flex-1 text-white border-gray-600" onClick={() => setWizardStep(s => s - 1)}>
+                    Anterior
+                  </Button>
+                )}
+                {wizardStep < 3 ? (
+                  <Button
+                    className="btn-primary flex-1"
+                    onClick={() => setWizardStep(s => s + 1)}
+                    disabled={wizardStep === 1 && (!form.client_id || !form.name || !form.objective)}
+                  >
+                    Siguiente
+                  </Button>
+                ) : (
+                  <Button
+                    className="btn-primary flex-1"
+                    onClick={handleCreate}
+                    disabled={creating}
+                  >
+                    {creating ? (
+                      <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creando...</>
+                    ) : (
+                      <><CheckCircle className="w-4 h-4 mr-2" />Crear Campa\u00f1a</>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

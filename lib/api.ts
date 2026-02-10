@@ -143,6 +143,10 @@ export const api = {
     return apiGet('/campaigns', params)
   },
 
+  async getClientCampaigns(clientId: string): Promise<{ campaigns: Campaign[] }> {
+    return apiGet('/campaigns', { client_id: clientId })
+  },
+
   // --- Approvals ---
   async listApprovals(status?: string): Promise<{ status: string; approvals: Approval[] }> {
     const params: Record<string, string> = {}

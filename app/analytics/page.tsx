@@ -66,7 +66,7 @@ export default function AnalyticsPage() {
 
   const stats = [
     {
-      label: "Publicaciónes Totales",
+      label: "Publicaciones Totales",
       value: posts.length.toString(),
       change: publishedPosts.length > 0 ? `${publishedPosts.length} publicados` : "sin publicar",
       trend: publishedPosts.length > 0 ? "up" : "neutral",
@@ -204,7 +204,7 @@ export default function AnalyticsPage() {
                       <div className="empty-state py-8">
                         <BarChart3 className="empty-state-icon" />
                         <p className="empty-state-description">
-                          No hay datos de actividad. Programa publicaciónes para ver el gráfico.
+                          No hay datos de actividad. Programa publicaciones para ver el gráfico.
                         </p>
                       </div>
                     ) : (

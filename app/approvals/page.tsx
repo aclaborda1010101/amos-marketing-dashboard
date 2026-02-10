@@ -3,30 +3,15 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
-import { 
-  Search, 
-  Filter,
-  CheckSquare,
-  CheckCircle,
-  XCircle,
-  Clock
-} from 'lucide-react'
-
-interface Approval {
-  request_id: string
-  client_id: string
-  bot: string
-  priority: string
-  status: string
-  summary: any
-  submitted_at: string
-}
+import { api, type Approval } from '@/lib/api'
+import { Search, Filter, CheckSquare, CheckCircle, XCircle, Clock } from 'lucide-react'
 
 export default function ApprovalsPage() {
   const [approvals, setApprovals] = useState<Approval[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [comments, setComments] = useState<Record<string, string>>({})
 
   useEffect(() => {
     loadApprovals()
@@ -34,18 +19,10 @@ export default function ApprovalsPage() {
 
   const loadApprovals = async () => {
     try {
-      let query = supabase
-        .from('approval_queue')
-        .select('*')
-        .order('submitted_at', { ascending: false })
-      
-      if (filter !== 'all') {
-        query = query.eq('status', filter)
-      }
-
-      const { data, error } = await query
-      if (error) throw error
-      setApprovals(data || [])
+      setLoading(true)
+      const filterParam = filter !== 'all' ? filter : undefined
+      const data = await api.listApprovals(filterParam)
+      setApprovals(data.approvals || [])
     } catch (error) {
       console.error('Error loading approvals:', error)
     } finally {
@@ -53,34 +30,43 @@ export default function ApprovalsPage() {
     }
   }
 
-  const stats = [
-    {
-      label: "Pendientes",
-      value: approvals.filter(a => a.status === 'pending').length,
-      subtitle: "Esperando decisión",
-      icon: Clock,
-      color: "text-orange-500"
-    },
-    {
-      label: "Aprobadas Hoy",
-      value: "0",
-      subtitle: "Últimas 24 horas",
-      icon: CheckCircle,
-      color: "text-green-500"
-    },
-    {
-      label: "Rechazadas",
-      value: "0",
-      subtitle: "Necesitan revisión",
-      icon: XCircle,
-      color: "text-red-500"
+  const handleApprove = async (requestId: string) => {
+    try {
+      setActionLoading(requestId)
+      const comment = comments[requestId] || 'Aprobado'
+      await api.decideApproval(requestId, 'approved', comment, 'Director')
+      await loadApprovals()
+    } catch (error) {
+      console.error('Error approving:', error)
+      alert('Error al aprobar la solicitud')
+    } finally {
+      setActionLoading(null)
     }
+  }
+
+  const handleReject = async (requestId: string) => {
+    try {
+      setActionLoading(requestId)
+      const comment = comments[requestId] || 'Rechazado'
+      await api.decideApproval(requestId, 'rejected', comment, 'Director')
+      await loadApprovals()
+    } catch (error) {
+      console.error('Error rejecting:', error)
+      alert('Error al rechazar la solicitud')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const stats = [
+    { label: "Pendientes", value: approvals.filter(a => a.status === 'pending').length, subtitle: "Esperando decisiÃ³n", icon: Clock, color: "text-orange-500" },
+    { label: "Aprobadas", value: approvals.filter(a => a.status === 'approved').length, subtitle: "Ãltimas decisiones", icon: CheckCircle, color: "text-green-500" },
+    { label: "Rechazadas", value: approvals.filter(a => a.status === 'rejected').length, subtitle: "Necesitan revisiÃ³n", icon: XCircle, color: "text-red-500" }
   ]
 
   return (
     <div className="flex min-h-screen">
       <Sidebar currentPath="/approvals" />
-      
       <div className="main-content">
         {/* Header */}
         <header className="app-header">
@@ -93,7 +79,6 @@ export default function ApprovalsPage() {
               <CheckSquare className="w-5 h-5 text-lime-400" />
               <span className="text-white font-medium">Aprobaciones</span>
             </div>
-            
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
@@ -105,7 +90,6 @@ export default function ApprovalsPage() {
               </div>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <button className="icon-btn">
               <Filter className="w-4 h-4" />
@@ -146,7 +130,7 @@ export default function ApprovalsPage() {
                     : 'border-transparent text-[var(--dark-text-muted)] hover:text-white'
                 }`}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === 'pending' ? 'Pendientes' : status === 'approved' ? 'Aprobadas' : status === 'rejected' ? 'Rechazadas' : 'Todas'}
                 {status === 'pending' && approvals.filter(a => a.status === 'pending').length > 0 && (
                   <span className="ml-2 px-2 py-0.5 text-xs bg-lime-500/20 text-lime-400 rounded-full">
                     {approvals.filter(a => a.status === 'pending').length}
@@ -169,9 +153,9 @@ export default function ApprovalsPage() {
                     <CheckSquare className="empty-state-icon" />
                     <h4 className="empty-state-title">No hay aprobaciones {filter !== 'all' && filter}</h4>
                     <p className="empty-state-description max-w-sm mx-auto">
-                      {filter === 'pending' 
-                        ? 'No hay propuestas pendientes de aprobación'
-                        : 'No hay aprobaciones en esta categoría'}
+                      {filter === 'pending'
+                        ? 'No hay propuestas pendientes de aprobaciÃ³n'
+                        : 'No hay aprobaciones en esta categorÃ­a'}
                     </p>
                   </div>
                 </div>
@@ -202,27 +186,53 @@ export default function ApprovalsPage() {
                           </span>
                         </div>
                         <p className="text-sm text-[var(--dark-text-muted)] mb-3">
-                          {approval.summary?.description || 'Aprobación requerida'}
+                          {approval.summary?.description || typeof approval.summary === 'string' ? approval.summary : 'AprobaciÃ³n requerida'}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-[var(--dark-text-subtle)]">
                           <span>Bot: {approval.bot}</span>
-                          <span>•</span>
+                          <span>â¢</span>
+                          <span>Cliente: {approval.client_id}</span>
+                          <span>â¢</span>
                           <span>{new Date(approval.submitted_at).toLocaleString('es-ES')}</span>
                         </div>
+
+                        {/* Comments for pending */}
+                        {approval.status === 'pending' && (
+                          <div className="mt-3">
+                            <textarea
+                              value={comments[approval.request_id] || ''}
+                              onChange={(e) => setComments({
+                                ...comments,
+                                [approval.request_id]: e.target.value
+                              })}
+                              placeholder="Comentarios opcionales..."
+                              className="w-full px-3 py-2 text-sm rounded-lg bg-[var(--dark-surface)] border border-[var(--dark-border)] text-white placeholder-[var(--dark-text-subtle)] focus:outline-none focus:border-lime-500"
+                              rows={2}
+                            />
+                          </div>
+                        )}
                       </div>
+
                       {approval.status === 'pending' && (
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="text-white border-[var(--dark-border)]"
+                            onClick={() => handleReject(approval.request_id)}
+                            disabled={actionLoading === approval.request_id}
                           >
                             <XCircle className="w-4 h-4" />
-                            Rechazar
+                            {actionLoading === approval.request_id ? '...' : 'Rechazar'}
                           </Button>
-                          <Button className="btn-primary" size="sm">
+                          <Button
+                            className="btn-primary"
+                            size="sm"
+                            onClick={() => handleApprove(approval.request_id)}
+                            disabled={actionLoading === approval.request_id}
+                          >
                             <CheckCircle className="w-4 h-4" />
-                            Aprobar
+                            {actionLoading === approval.request_id ? '...' : 'Aprobar'}
                           </Button>
                         </div>
                       )}

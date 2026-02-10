@@ -100,7 +100,7 @@ export default function Dashboard() {
       setShowWizard(false)
     } catch (error) {
       console.error('Error creating client:', error)
-      alert('Error al crear el cliente. Verifica que las tablas estÃ©n creadas en Supabase.')
+      alert('Error al crear el cliente. Verifica que las tablas estén creadas en Supabase.')
     }
   }
 
@@ -112,7 +112,7 @@ export default function Dashboard() {
     icon: any
   }> = [
     { label: "Clientes Activos", value: clients.length.toString(), change: `${clients.length} total`, trend: "neutral", icon: Users },
-    { label: "CampaÃ±as Activas", value: campaignsCount.toString(), change: `${campaignsCount} total`, trend: campaignsCount > 0 ? "up" : "neutral", icon: Megaphone },
+    { label: "Campañas Activas", value: campaignsCount.toString(), change: `${campaignsCount} total`, trend: campaignsCount > 0 ? "up" : "neutral", icon: Megaphone },
     { label: "Publicaciones Programadas", value: postsCount.toString(), change: `${postsCount} programadas`, trend: postsCount > 0 ? "up" : "neutral", icon: Calendar },
     { label: "Aprobaciones Pendientes", value: approvalsCount.toString(), change: `${approvalsCount} urgentes`, trend: approvalsCount > 0 ? "up" : "neutral", icon: CheckCircle }
   ]
@@ -132,7 +132,7 @@ export default function Dashboard() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
                 <input
                   type="text"
-                  placeholder="Buscar clientes, campaÃ±as..."
+                  placeholder="Buscar clientes, campañas..."
                   className="search-input pl-10"
                 />
               </div>
@@ -207,9 +207,9 @@ export default function Dashboard() {
                   ) : clients.length === 0 ? (
                     <div className="empty-state py-12">
                       <Users className="empty-state-icon" />
-                      <h4 className="empty-state-title">No hay clientes todavÃ­a</h4>
+                      <h4 className="empty-state-title">No hay clientes todavía</h4>
                       <p className="empty-state-description max-w-sm mx-auto">
-                        Crea tu primer cliente para empezar a gestionar campaÃ±as y contenido
+                        Crea tu primer cliente para empezar a gestionar campañas y contenido
                       </p>
                       <Button
                         className="btn-primary"
@@ -309,7 +309,7 @@ export default function Dashboard() {
               {/* Quick Actions */}
               <div className="card-dark mt-4">
                 <div className="card-header">
-                  <h3 className="font-semibold text-white">Acciones RÃ¡pidas</h3>
+                  <h3 className="font-semibold text-white">Acciones Rápidas</h3>
                 </div>
                 <div className="card-content space-y-2">
                   <button
@@ -321,7 +321,7 @@ export default function Dashboard() {
                   </button>
                   <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <Megaphone className="w-4 h-4" />
-                    <span>Nueva CampaÃ±a</span>
+                    <span>Nueva Campaña</span>
                   </button>
                   <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[var(--dark-surface-hover)] transition-colors text-[var(--dark-text-muted)] hover:text-white">
                     <Calendar className="w-4 h-4" />

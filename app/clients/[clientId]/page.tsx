@@ -76,12 +76,19 @@ export default function ClientDetailPage() {
     setError('')
     setSuccessMsg('')
     try {
-      await api.generateBrandDNA(clientId, {
-        name: client.name,
-        industry: client.industry,
-        website: client.website || '',
-        brief: client.brief || ''
-      })
+      // Initialize client state in backend first
+      try {
+        await api.initializeClientState({
+          id: client.id,
+          name: client.name,
+          industry: client.industry,
+          website: client.website || undefined,
+          brief: client.brief || undefined
+        })
+      } catch (initErr) {
+        console.log('State init (may already exist):', initErr)
+      }
+      await api.generateBrandDNA(clientId)
       setBrandDnaStatus('in_progress')
       setSuccessMsg('ADN de Marca iniciado. Puede tardar unos minutos...')
       const pollInterval = setInterval(() => {

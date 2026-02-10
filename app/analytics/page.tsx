@@ -66,7 +66,7 @@ export default function AnalyticsPage() {
 
   const stats = [
     {
-      label: "Publicaciones Totales",
+      label: "Publicaciónes Totales",
       value: posts.length.toString(),
       change: publishedPosts.length > 0 ? `${publishedPosts.length} publicados` : "sin publicar",
       trend: publishedPosts.length > 0 ? "up" : "neutral",
@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
       icon: Clock
     },
     {
-      label: "Tasa de Aprobacion",
+      label: "Tasa de Aprobación",
       value: approvals.length > 0
         ? Math.round((approvedApprovals.length / approvals.length) * 100) + '%'
         : '0%',
@@ -89,7 +89,7 @@ export default function AnalyticsPage() {
       icon: CheckCircle
     },
     {
-      label: "Campanas Activas",
+      label: "Campañas Activas",
       value: activeCampaigns.length.toString(),
       change: `${campaigns.length} total`,
       trend: activeCampaigns.length > 0 ? "up" : "neutral",
@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
                 <input
                   type="text"
-                  placeholder="Buscar metricas..."
+                  placeholder="Buscar métricas..."
                   className="search-input pl-10"
                 />
               </div>
@@ -197,14 +197,14 @@ export default function AnalyticsPage() {
                 {/* Activity Chart */}
                 <div className="card-dark">
                   <div className="card-header">
-                    <h3 className="text-lg font-semibold text-white">Actividad Ultimos 7 Dias</h3>
+                    <h3 className="text-lg font-semibold text-white">Actividad Últimos 7 Dias</h3>
                   </div>
                   <div className="card-content">
                     {posts.length === 0 ? (
                       <div className="empty-state py-8">
                         <BarChart3 className="empty-state-icon" />
                         <p className="empty-state-description">
-                          No hay datos de actividad. Programa publicaciones para ver el grafico.
+                          No hay datos de actividad. Programa publicaciónes para ver el gráfico.
                         </p>
                       </div>
                     ) : (
@@ -231,7 +231,7 @@ export default function AnalyticsPage() {
                 {/* Platform Distribution */}
                 <div className="card-dark">
                   <div className="card-header">
-                    <h3 className="text-lg font-semibold text-white">Distribucion por Plataforma</h3>
+                    <h3 className="text-lg font-semibold text-white">Distribución por Plataforma</h3>
                   </div>
                   <div className="card-content">
                     {Object.keys(platformStats).length === 0 ? (
@@ -274,18 +274,18 @@ export default function AnalyticsPage() {
               {/* Campaign Performance */}
               <div className="card-dark">
                 <div className="card-header">
-                  <h3 className="text-lg font-semibold text-white">Rendimiento de Campanas</h3>
+                  <h3 className="text-lg font-semibold text-white">Rendimiento de Campañas</h3>
                 </div>
                 <div className="card-content p-0">
                   {campaigns.length === 0 ? (
                     <div className="empty-state py-8">
                       <Activity className="empty-state-icon" />
-                      <h4 className="empty-state-title">No hay campanas registradas</h4>
+                      <h4 className="empty-state-title">No hay campañas registradas</h4>
                       <p className="empty-state-description max-w-sm mx-auto">
-                        Crea campanas desde la seccion de Clientes para ver su rendimiento aqui.
+                        Crea campañas desde la sección de Clientes para ver su rendimiento aquí.
                       </p>
                       <Button variant="outline" className="text-white border-[var(--dark-border)] mt-4" onClick={() => window.location.href = '/campaigns'}>
-                        Ver Campanas
+                        Ver Campañas
                       </Button>
                     </div>
                   ) : (
@@ -331,7 +331,7 @@ export default function AnalyticsPage() {
               {approvals.length > 0 && (
                 <div className="card-dark mt-6">
                   <div className="card-header">
-                    <h3 className="text-lg font-semibold text-white">Resumen de Aprobaciones</h3>
+                    <h3 className="text-lg font-semibold text-white">Resumen de Aprobaciónes</h3>
                   </div>
                   <div className="card-content">
                     <div className="grid grid-cols-3 gap-4">

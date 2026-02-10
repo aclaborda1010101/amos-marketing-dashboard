@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
 
-// ============= TYPES =============
+// ============= TYPES ==============
 
 export interface ApiClient {
   id: string
@@ -29,16 +29,12 @@ export interface Campaign {
   name: string
   status: 'active' | 'completed' | 'paused' | 'draft'
   objective: string
-  budget: any
-  created_at: string
-}
-
-export interface Approval {
-  request_id: string
-  client_id: string
+  platforms: string[]
+  start_date?: string
+  end_date?: string
+  budget?: number
   bot: string
   priority: string
-  status: string
   summary: any
   submitted_at: string
 }
@@ -58,7 +54,27 @@ export interface HealthResponse {
   components?: Record<string, string>
 }
 
-// ============= API HELPERS =============
+export interface DashboardSummary {
+  clients: number
+  campaigns: number
+  posts_this_month: number
+  pending_approvals: number
+}
+
+export interface Approval {
+  id: string
+  request_id?: string
+  client_id: string
+  type: string
+  status: 'pending' | 'approved' | 'rejected'
+  content: any
+  submitted_at: string
+  decided_at?: string
+  decided_by?: string
+  comments?: string
+}
+
+// ============= API HELPERS ==============
 
 async function apiGet<T>(path: string, params?: Record<string, string>): Promise<T> {
   const url = new URL(`${API_URL}${path}`)
@@ -90,7 +106,7 @@ async function apiPost<T>(path: string, body: any): Promise<T> {
   return response.json()
 }
 
-// ============= API FUNCTIONS =============
+// ============= API FUNCTIONS ==============
 
 export const api = {
   baseURL: API_URL,
@@ -102,6 +118,11 @@ export const api = {
 
   async getHealthDetail(): Promise<HealthResponse> {
     return apiGet('/health')
+  },
+
+  // --- Dashboard ---
+  async getDashboardSummary(): Promise<DashboardSummary> {
+    return apiGet('/dashboard/summary')
   },
 
   // --- Clients ---
@@ -129,12 +150,16 @@ export const api = {
     })
   },
 
-  // --- Content Calendar ---
-  async generateContentCalendar(clientId: string, month: string): Promise<any> {
-    return apiPost('/generate-content-calendar', {
-      client_id: clientId,
-      month
-    })
+  async getBrandDNA(clientId: string): Promise<any> {
+    return apiGet(`/brand-dna/${clientId}`)
+  },
+
+  async validateBrandDNA(clientId: string): Promise<any> {
+    return apiPost(`/brand-dna/${clientId}/validate`, {})
+  },
+
+  async approveBrandDNA(clientId: string): Promise<any> {
+    return apiPost(`/brand-dna/${clientId}/approve`, {})
   },
 
   // --- Campaigns ---
@@ -187,11 +212,19 @@ export const api = {
     })
   },
 
-  // --- Scheduled Posts ---
+  // --- Calendar / Scheduled Posts ---
   async listScheduledPosts(clientId?: string): Promise<{ posts: ScheduledPost[] }> {
     const params: Record<string, string> = {}
     if (clientId) params.client_id = clientId
-    return apiGet('/scheduled-posts', params)
+    return apiGet('/calendar', params)
+  },
+
+  // --- Content Calendar Generation ---
+  async generateContentCalendar(clientId: string, options?: any): Promise<any> {
+    return apiPost('/generate-content-calendar', {
+      client_id: clientId,
+      ...options
+    })
   },
 
   // --- Specialists ---
@@ -204,3 +237,4 @@ export const api = {
     }
   }
 }
+

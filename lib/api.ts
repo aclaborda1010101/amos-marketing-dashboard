@@ -23,6 +23,7 @@ export interface ClientState {
 }
 
 export interface Campaign {
+  id: string
   campaign_id: string
   client_id: string
   name: string

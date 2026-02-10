@@ -68,14 +68,29 @@ export default function CampaignsPage() {
     setCreating(true)
     setError('')
     try {
-      await api.generateContentCalendar(form.client_id, {
-        campaign_name: form.name,
-        objective: form.objective,
-        platforms: form.platforms,
-        budget: form.budget ? parseFloat(form.budget) : undefined,
-        start_date: form.start_date || undefined,
-        end_date: form.end_date || undefined,
-      })
+      // Calculate month from start_date or use current month
+      const month = form.start_date
+        ? form.start_date.substring(0, 7)
+        : new Date().toISOString().substring(0, 7)
+      const platforms = form.platforms.length > 0 ? form.platforms : undefined
+
+      // Initialize client state first (in case it hasn't been done)
+      const selectedClient = clients.find(c => c.id === form.client_id)
+      if (selectedClient) {
+        try {
+          await api.initializeClientState({
+            id: selectedClient.id,
+            name: selectedClient.name,
+            industry: selectedClient.industry,
+            website: selectedClient.website || undefined,
+            brief: selectedClient.brief || undefined
+          })
+        } catch (initErr) {
+          console.log('State init (may already exist):', initErr)
+        }
+      }
+
+      await api.generateContentCalendar(form.client_id, month, platforms)
       setSuccess('Campaña creada exitosamente')
       setShowWizard(false)
       setWizardStep(1)

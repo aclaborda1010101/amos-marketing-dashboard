@@ -241,7 +241,7 @@ export default function ClientsPage() {
                         <div className="flex items-center gap-2 text-xs">
                           <TrendingUp className="w-3 h-3 text-lime-400" />
                           <span className="text-[var(--dark-text-muted)]">Brand DNA:</span>
-                          <span className="text-lime-400 font-medium">Pendiente</span>
+                          <span className={((client as any).brand_brief ? "text-green-400" : "text-yellow-400") + " font-medium"}>{(client as any).brand_brief ? "Generado" : "Pendiente"}</span>
                         </div>
                       </div>
                     </div>

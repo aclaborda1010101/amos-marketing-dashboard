@@ -120,7 +120,7 @@ export default function SettingsPage() {
     } catch {
       setIntegrations(prev => prev.map(i =>
         i.name === 'ManIAS Backend API'
-          ? { ...i, connected: false, checking: false, detail: 'Sin conexion' }
+          ? { ...i, connected: false, checking: false, detail: 'Sin conexión' }
           : i
       ))
     }
@@ -170,9 +170,9 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'profile', label: 'Perfil', icon: User },
-    { id: 'notifications', label: 'Notificaciones', icon: Bell },
+    { id: 'notifications', label: 'Notificaciónes', icon: Bell },
     { id: 'security', label: 'Seguridad', icon: Shield },
-    { id: 'integrations', label: 'Integraciones', icon: Zap }
+    { id: 'integrations', label: 'Integraciónes', icon: Zap }
   ]
 
   return (
@@ -188,14 +188,14 @@ export default function SettingsPage() {
               </a>
               <span className="text-[var(--dark-text-subtle)]">/</span>
               <SettingsIcon className="w-5 h-5 text-lime-400" />
-              <span className="text-white font-medium">Configuracion</span>
+              <span className="text-white font-medium">Configuración</span>
             </div>
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
                 <input
                   type="text"
-                  placeholder="Buscar configuracion..."
+                  placeholder="Buscar configuración..."
                   className="search-input pl-10"
                 />
               </div>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="card-dark max-w-2xl">
               <div className="card-header">
-                <h3 className="text-lg font-semibold text-white">Informacion Personal</h3>
+                <h3 className="text-lg font-semibold text-white">Información Personal</h3>
               </div>
               <div className="card-content space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -286,12 +286,12 @@ export default function SettingsPage() {
           {activeTab === 'notifications' && (
             <div className="card-dark max-w-2xl">
               <div className="card-header">
-                <h3 className="text-lg font-semibold text-white">Preferencias de Notificaciones</h3>
+                <h3 className="text-lg font-semibold text-white">Preferencias de Notificaciónes</h3>
               </div>
               <div className="card-content space-y-1">
                 {[
-                  { key: 'newApprovals' as const, label: 'Nuevas Aprobaciones', desc: 'Recibir notificaciones cuando haya nuevas propuestas' },
-                  { key: 'campaignAlerts' as const, label: 'Alertas de Campana', desc: 'Notificaciones sobre rendimiento de campanas' },
+                  { key: 'newApprovals' as const, label: 'Nuevas Aprobaciones', desc: 'Recibir notificaciónes cuando haya nuevas propuestas' },
+                  { key: 'campaignAlerts' as const, label: 'Alertas de Campana', desc: 'Notificaciónes sobre rendimiento de campanas' },
                   { key: 'weeklySummary' as const, label: 'Resumen Semanal', desc: 'Recibir resumen semanal de actividad' },
                   { key: 'marketingEmails' as const, label: 'Emails de Marketing', desc: 'Recibir actualizaciones y novedades del producto' }
                 ].map((item) => (
@@ -369,7 +369,7 @@ export default function SettingsPage() {
               {/* Backend Connection Status */}
               <div className="card-dark">
                 <div className="card-header flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">Estado de Conexiones</h3>
+                  <h3 className="text-lg font-semibold text-white">Estado de Conexiónes</h3>
                   <Button
                     variant="outline"
                     size="sm"
@@ -414,7 +414,7 @@ export default function SettingsPage() {
               {/* API Info */}
               <div className="card-dark">
                 <div className="card-header">
-                  <h3 className="text-lg font-semibold text-white">Informacion de API</h3>
+                  <h3 className="text-lg font-semibold text-white">Información de API</h3>
                 </div>
                 <div className="card-content space-y-3">
                   <div>
@@ -444,7 +444,7 @@ export default function SettingsPage() {
               <div className="card-dark">
                 <div className="card-header">
                   <h3 className="text-lg font-semibold text-white">API Keys</h3>
-                  <p className="text-sm text-[var(--dark-text-muted)]">Gestiona tus claves de API para integraciones</p>
+                  <p className="text-sm text-[var(--dark-text-muted)]">Gestiona tus claves de API para integraciónes</p>
                 </div>
                 <div className="card-content">
                   <div className="flex items-center justify-between p-3 rounded-lg border border-[var(--dark-border)] bg-[var(--dark-surface)]">

@@ -27,10 +27,10 @@ export default function CampaignsPage() {
   }
 
   const stats = [
-    { label: "CampaÃ±as Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
-    { label: "Presupuesto Total", value: "â¬0", change: `${campaigns.length} campaÃ±as`, icon: DollarSign, color: "text-blue-500" },
+    { label: "Campañas Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
+    { label: "Presupuesto Total", value: "€0", change: `${campaigns.length} campañas`, icon: DollarSign, color: "text-blue-500" },
     { label: "Impresiones", value: "0", change: "Este mes", icon: Users, color: "text-purple-500" },
-    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "CampaÃ±as", icon: Calendar, color: "text-orange-500" }
+    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "Campañas", icon: Calendar, color: "text-orange-500" }
   ]
 
   return (
@@ -46,14 +46,14 @@ export default function CampaignsPage() {
               </a>
               <span className="text-[var(--dark-text-subtle)]">/</span>
               <Megaphone className="w-5 h-5 text-lime-400" />
-              <span className="text-white font-medium">CampaÃ±as</span>
+              <span className="text-white font-medium">Campañas</span>
             </div>
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--dark-text-subtle)]" />
                 <input
                   type="text"
-                  placeholder="Buscar campaÃ±as..."
+                  placeholder="Buscar campañas..."
                   className="search-input pl-10"
                 />
               </div>
@@ -69,7 +69,7 @@ export default function CampaignsPage() {
               onClick={() => setShowWizard(true)}
             >
               <Plus className="w-4 h-4" />
-              Nueva CampaÃ±a
+              Nueva Campaña
             </Button>
           </div>
         </header>
@@ -98,7 +98,7 @@ export default function CampaignsPage() {
           {/* Campaigns List */}
           <div className="card-dark">
             <div className="card-header flex items-center justify-between">
-              <h3 className="font-semibold text-white">Todas las CampaÃ±as</h3>
+              <h3 className="font-semibold text-white">Todas las Campañas</h3>
               <button className="text-sm text-lime-400 hover:text-lime-300 font-medium transition-colors">
                 Exportar
               </button>
@@ -112,9 +112,9 @@ export default function CampaignsPage() {
               ) : campaigns.length === 0 ? (
                 <div className="empty-state py-12">
                   <Megaphone className="empty-state-icon" />
-                  <h4 className="empty-state-title">No hay campaÃ±as todavÃ­a</h4>
+                  <h4 className="empty-state-title">No hay campañas todavía</h4>
                   <p className="empty-state-description max-w-sm mx-auto">
-                    Comienza creando tu primera campaÃ±a o selecciona un cliente para ver sus campaÃ±as activas
+                    Comienza creando tu primera campaña o selecciona un cliente para ver sus campañas activas
                   </p>
                   <div className="flex gap-3 justify-center mt-6">
                     <Button
@@ -129,7 +129,7 @@ export default function CampaignsPage() {
                       onClick={() => setShowWizard(true)}
                     >
                       <Plus className="w-4 h-4" />
-                      Nueva CampaÃ±a
+                      Nueva Campaña
                     </Button>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default function CampaignsPage() {
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>CampaÃ±a</th>
+                      <th>Campaña</th>
                       <th>Cliente</th>
                       <th>Objetivo</th>
                       <th>Presupuesto</th>
@@ -160,7 +160,7 @@ export default function CampaignsPage() {
                         <td className="text-[var(--dark-text-muted)]">{campaign.client_id}</td>
                         <td className="text-[var(--dark-text-muted)]">{campaign.objective}</td>
                         <td className="text-[var(--dark-text-muted)]">
-                          {campaign.budget?.total ? `â¬${campaign.budget.total}` : '-'}
+                          {campaign.budget?.total ? `€${campaign.budget.total}` : '-'}
                         </td>
                         <td>
                           <span className={`badge ${
@@ -194,9 +194,9 @@ export default function CampaignsPage() {
       {showWizard && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-lg p-8 max-w-md mx-4">
-            <h2 className="text-2xl font-bold text-white mb-4">Crear Nueva CampaÃ±a</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Crear Nueva Campaña</h2>
             <p className="text-[var(--dark-text-muted)] mb-6">
-              El wizard de campaÃ±as estarÃ¡ disponible prÃ³ximamente.
+              El wizard de campañas estará disponible próximamente.
             </p>
             <div className="flex gap-3">
               <Button

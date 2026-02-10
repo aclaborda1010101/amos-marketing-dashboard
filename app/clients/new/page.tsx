@@ -109,9 +109,9 @@ export default function NewClientPage() {
   }
 
   return (
-    <div className="flex h-screen bg-[var(--dark-bg)]">
+    <div className="min-h-screen bg-[var(--dark-bg)]">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="main-content p-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/clients">

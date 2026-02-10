@@ -76,13 +76,13 @@ export default function CampaignsPage() {
         start_date: form.start_date || undefined,
         end_date: form.end_date || undefined,
       })
-      setSuccess('Campa\u00f1a creada exitosamente')
+      setSuccess('Campaña creada exitosamente')
       setShowWizard(false)
       setWizardStep(1)
       setForm({ client_id: '', name: '', objective: '', platforms: [], budget: '', start_date: '', end_date: '' })
       loadData()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error al crear campa\u00f1a'
+      const msg = err instanceof Error ? err.message : 'Error al crear campaña'
       setError(msg)
     } finally {
       setCreating(false)
@@ -90,19 +90,19 @@ export default function CampaignsPage() {
   }
 
   const platformOptions = [
-    { id: 'instagram', label: 'Instagram', icon: '\ud83d\udcf7' },
-    { id: 'linkedin', label: 'LinkedIn', icon: '\ud83d\udcbc' },
-    { id: 'tiktok', label: 'TikTok', icon: '\ud83c\udfb5' },
-    { id: 'twitter', label: 'X/Twitter', icon: '\ud83d\udc26' },
-    { id: 'facebook', label: 'Facebook', icon: '\ud83d\udc4d' },
-    { id: 'youtube', label: 'YouTube', icon: '\u25b6\ufe0f' },
+    { id: 'instagram', label: 'Instagram', icon: '📷' },
+    { id: 'linkedin', label: 'LinkedIn', icon: '💼' },
+    { id: 'tiktok', label: 'TikTok', icon: '🎵' },
+    { id: 'twitter', label: 'X/Twitter', icon: '🐦' },
+    { id: 'facebook', label: 'Facebook', icon: '👍' },
+    { id: 'youtube', label: 'YouTube', icon: '▶️' },
   ]
 
   const stats = [
-    { label: "Campa\u00f1as Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
-    { label: "Presupuesto Total", value: "\u20ac0", change: `${campaigns.length} campa\u00f1as`, icon: DollarSign, color: "text-blue-500" },
+    { label: "Campañas Activas", value: campaigns.filter(c => c.status === 'active').length.toString(), change: `${campaigns.length} total`, icon: TrendingUp, color: "text-green-500" },
+    { label: "Presupuesto Total", value: "€0", change: `${campaigns.length} campañas`, icon: DollarSign, color: "text-blue-500" },
     { label: "Impresiones", value: "0", change: "Este mes", icon: Users, color: "text-purple-500" },
-    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "Campa\u00f1as", icon: Calendar, color: "text-orange-500" }
+    { label: "En Curso", value: campaigns.filter(c => c.status === 'active').length.toString(), change: "Campañas", icon: Calendar, color: "text-orange-500" }
   ]
 
   return (
@@ -115,7 +115,7 @@ export default function CampaignsPage() {
               <a href="/" className="text-[var(--dark-text-subtle)] hover:text-lime-400 transition-colors">Dashboard</a>
               <span className="text-[var(--dark-text-subtle)]">/</span>
               <Megaphone className="w-5 h-5 text-lime-400" />
-              <span className="text-white font-medium">Campa\u00f1as</span>
+              <span className="text-white font-medium">Campañas</span>
             </div>
           </div>
           <Button
@@ -124,7 +124,7 @@ export default function CampaignsPage() {
             onClick={() => { setShowWizard(true); setWizardStep(1) }}
           >
             <Plus className="w-4 h-4" />
-            Nueva Campa\u00f1a
+            Nueva Campaña
           </Button>
         </header>
 
@@ -164,7 +164,7 @@ export default function CampaignsPage() {
 
           <div className="card-dark">
             <div className="card-header flex items-center justify-between">
-              <h2 className="text-white font-semibold">Todas las Campa\u00f1as</h2>
+              <h2 className="text-white font-semibold">Todas las Campañas</h2>
               <span className="text-sm text-[var(--dark-text-subtle)]">{campaigns.length} total</span>
             </div>
             {loading ? (
@@ -174,9 +174,9 @@ export default function CampaignsPage() {
             ) : campaigns.length === 0 ? (
               <div className="text-center py-16">
                 <Megaphone className="w-12 h-12 text-[var(--dark-text-subtle)] mx-auto mb-4" />
-                <h3 className="text-white font-semibold text-lg mb-2">No hay campa\u00f1as todav\u00eda</h3>
+                <h3 className="text-white font-semibold text-lg mb-2">No hay campañas todavía</h3>
                 <p className="text-[var(--dark-text-muted)] mb-6">
-                  Crea tu primera campa\u00f1a para empezar a gestionar tu marketing.
+                  Crea tu primera campaña para empezar a gestionar tu marketing.
                 </p>
                 <div className="flex gap-3 justify-center">
                   <Button variant="outline" className="text-white border-[var(--dark-border)]" onClick={() => window.location.href = '/clients'}>
@@ -184,7 +184,7 @@ export default function CampaignsPage() {
                   </Button>
                   <Button className="btn-primary" onClick={() => { setShowWizard(true); setWizardStep(1) }}>
                     <Plus className="w-4 h-4" />
-                    Nueva Campa\u00f1a
+                    Nueva Campaña
                   </Button>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function CampaignsPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Campa\u00f1a</th>
+                    <th>Campaña</th>
                     <th>Cliente</th>
                     <th>Objetivo</th>
                     <th>Presupuesto</th>
@@ -207,7 +207,7 @@ export default function CampaignsPage() {
                       <td className="font-medium text-white">{campaign.name}</td>
                       <td>{campaign.client_id?.substring(0, 8)}...</td>
                       <td className="max-w-[200px] truncate">{campaign.objective}</td>
-                      <td>{campaign.budget ? `\u20ac${campaign.budget}` : '-'}</td>
+                      <td>{campaign.budget ? `€${campaign.budget}` : '-'}</td>
                       <td>
                         <span className={`badge ${
                           campaign.status === 'active' ? 'badge-success' :
@@ -240,7 +240,7 @@ export default function CampaignsPage() {
             <div className="bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-lg p-8 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-white">
-                  {wizardStep === 1 ? 'Paso 1: Informaci\u00f3n B\u00e1sica' : wizardStep === 2 ? 'Paso 2: Plataformas y Fechas' : 'Paso 3: Confirmar'}
+                  {wizardStep === 1 ? 'Paso 1: Informaci\u00f3n Básica' : wizardStep === 2 ? 'Paso 2: Plataformas y Fechas' : 'Paso 3: Confirmar'}
                 </h2>
                 <button onClick={() => setShowWizard(false)} className="text-gray-400 hover:text-white">
                   <X className="w-5 h-5" />
@@ -270,7 +270,7 @@ export default function CampaignsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Nombre de la campa\u00f1a *</label>
+                    <label className="block text-sm text-gray-400 mb-2">Nombre de la campaña *</label>
                     <input
                       type="text"
                       value={form.name}
@@ -284,13 +284,13 @@ export default function CampaignsPage() {
                     <textarea
                       value={form.objective}
                       onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
-                      placeholder="Describe el objetivo principal de la campa\u00f1a..."
+                      placeholder="Describe el objetivo principal de la campaña..."
                       rows={3}
                       className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 focus:border-lime-400 focus:outline-none resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Presupuesto (\u20ac)</label>
+                    <label className="block text-sm text-gray-400 mb-2">Presupuesto (€)</label>
                     <input
                       type="number"
                       value={form.budget}
@@ -354,7 +354,7 @@ export default function CampaignsPage() {
                       <span className="text-white">{clients.find(c => c.id === form.client_id)?.name || '-'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Campa\u00f1a:</span>
+                      <span className="text-gray-400">Campaña:</span>
                       <span className="text-white">{form.name || '-'}</span>
                     </div>
                     <div className="flex justify-between">
@@ -367,7 +367,7 @@ export default function CampaignsPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Presupuesto:</span>
-                      <span className="text-white">{form.budget ? `\u20ac${form.budget}` : 'No definido'}</span>
+                      <span className="text-white">{form.budget ? `€${form.budget}` : 'No definido'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Periodo:</span>
@@ -375,7 +375,7 @@ export default function CampaignsPage() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-500">
-                    Al confirmar, se generar\u00e1 autom\u00e1ticamente un calendario de contenido con publicaciones optimizadas por IA.
+                    Al confirmar, se generará automáticamente un calendario de contenido con publicaciones optimizadas por IA.
                   </p>
                 </div>
               )}
@@ -404,7 +404,7 @@ export default function CampaignsPage() {
                     {creating ? (
                       <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creando...</>
                     ) : (
-                      <><CheckCircle className="w-4 h-4 mr-2" />Crear Campa\u00f1a</>
+                      <><CheckCircle className="w-4 h-4 mr-2" />Crear Campaña</>
                     )}
                   </Button>
                 )}

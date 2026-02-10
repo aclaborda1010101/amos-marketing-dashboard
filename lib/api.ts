@@ -142,11 +142,21 @@ export const api = {
     return apiPost(`/client/${clientId}/initialize`, {})
   },
 
+  // --- Initialize Client State via Webhook ---
+  async initializeClientState(client: { id: string, name: string, industry: string, website?: string, brief?: string }): Promise<any> {
+    return apiPost('/webhooks/client-created', {
+      client_id: client.id,
+      name: client.name,
+      industry: client.industry,
+      website: client.website || null,
+      brief: client.brief || null
+    })
+  },
+
   // --- Brand DNA ---
-  async generateBrandDNA(clientId: string, companyInfo: any): Promise<any> {
+  async generateBrandDNA(clientId: string): Promise<any> {
     return apiPost('/generate-brand-dna', {
-      client_id: clientId,
-      company_info: companyInfo
+      client_id: clientId
     })
   },
 
@@ -220,10 +230,12 @@ export const api = {
   },
 
   // --- Content Calendar Generation ---
-  async generateContentCalendar(clientId: string, options?: any): Promise<any> {
+  async generateContentCalendar(clientId: string, month: string, platforms?: string[], postCount?: number): Promise<any> {
     return apiPost('/generate-content-calendar', {
       client_id: clientId,
-      ...options
+      month: month,
+      platforms: platforms || ['instagram', 'linkedin'],
+      post_count: postCount || 20
     })
   },
 

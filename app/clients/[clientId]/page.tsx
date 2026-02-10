@@ -178,9 +178,9 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Sidebar />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="main-content flex items-center justify-center" style={{minHeight: '100vh'}}>
           <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
         </main>
       </div>
@@ -188,9 +188,9 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="main-content p-8">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/clients" className="text-gray-400 hover:text-white transition-colors">
             ← Volver

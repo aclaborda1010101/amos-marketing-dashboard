@@ -27,7 +27,7 @@ export interface Campaign {
   campaign_id: string
   client_id: string
   name: string
-  status: string
+  status: 'active' | 'completed' | 'paused' | 'draft'
   objective: string
   budget: any
   created_at: string

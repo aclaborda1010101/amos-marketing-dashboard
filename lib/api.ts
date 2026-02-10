@@ -192,5 +192,15 @@ export const api = {
     const params: Record<string, string> = {}
     if (clientId) params.client_id = clientId
     return apiGet('/scheduled-posts', params)
+  },
+
+  // --- Specialists ---
+  async getSpecialists(): Promise<{ specialists: any[] }> {
+    try {
+      return await apiGet('/specialists')
+    } catch {
+      // Backend may not have this endpoint yet - return empty
+      return { specialists: [] }
+    }
   }
 }

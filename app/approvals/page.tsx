@@ -59,9 +59,9 @@ export default function ApprovalsPage() {
   }
 
   const stats = [
-    { label: "Pendientes", value: approvals.filter(a => a.status === 'pending').length, subtitle: "Esperando decisiÃ³n", icon: Clock, color: "text-orange-500" },
-    { label: "Aprobadas", value: approvals.filter(a => a.status === 'approved').length, subtitle: "Ãltimas decisiones", icon: CheckCircle, color: "text-green-500" },
-    { label: "Rechazadas", value: approvals.filter(a => a.status === 'rejected').length, subtitle: "Necesitan revisiÃ³n", icon: XCircle, color: "text-red-500" }
+    { label: "Pendientes", value: approvals.filter(a => a.status === 'pending').length, subtitle: "Esperando decisión", icon: Clock, color: "text-orange-500" },
+    { label: "Aprobadas", value: approvals.filter(a => a.status === 'approved').length, subtitle: "Últimas decisiones", icon: CheckCircle, color: "text-green-500" },
+    { label: "Rechazadas", value: approvals.filter(a => a.status === 'rejected').length, subtitle: "Necesitan revisión", icon: XCircle, color: "text-red-500" }
   ]
 
   return (
@@ -154,8 +154,8 @@ export default function ApprovalsPage() {
                     <h4 className="empty-state-title">No hay aprobaciones {filter !== 'all' && filter}</h4>
                     <p className="empty-state-description max-w-sm mx-auto">
                       {filter === 'pending'
-                        ? 'No hay propuestas pendientes de aprobaciÃ³n'
-                        : 'No hay aprobaciones en esta categorÃ­a'}
+                        ? 'No hay propuestas pendientes de aprobación'
+                        : 'No hay aprobaciones en esta categoría'}
                     </p>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function ApprovalsPage() {
                           </span>
                         </div>
                         <p className="text-sm text-[var(--dark-text-muted)] mb-3">
-                          {approval.summary?.description || typeof approval.summary === 'string' ? approval.summary : 'AprobaciÃ³n requerida'}
+                          {approval.summary?.description || typeof approval.summary === 'string' ? approval.summary : 'Aprobación requerida'}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-[var(--dark-text-subtle)]">
                           <span>Bot: {approval.bot}</span>

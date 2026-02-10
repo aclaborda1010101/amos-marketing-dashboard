@@ -103,7 +103,7 @@ export default function CalendarPage() {
             ))}
             {dayPosts.length > 2 && (
               <div className="text-xs text-[var(--dark-text-subtle)]">
-                +{dayPosts.length - 2} mÃ¡s
+                +{dayPosts.length - 2} más
               </div>
             )}
           </div>
@@ -157,7 +157,7 @@ export default function CalendarPage() {
             </button>
             <Button className="btn-primary" size="sm">
               <Plus className="w-4 h-4" />
-              Nueva PublicaciÃ³n
+              Nueva Publicación
             </Button>
           </div>
         </header>
@@ -203,7 +203,7 @@ export default function CalendarPage() {
             <div className="card-content p-0">
               {/* Day Headers */}
               <div className="grid grid-cols-7 gap-0">
-                {['Dom', 'Lun', 'Mar', 'MiÃ©', 'Jue', 'Vie', 'SÃ¡b'].map(day => (
+                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
                   <div key={day} className="text-center font-semibold text-sm py-2 border border-[var(--dark-border)] bg-[var(--dark-surface)]">
                     {day}
                   </div>
@@ -225,7 +225,7 @@ export default function CalendarPage() {
                   <CalendarIcon className="empty-state-icon" />
                   <h4 className="empty-state-title">No hay publicaciones programadas</h4>
                   <p className="empty-state-description max-w-sm mx-auto">
-                    Comienza aÃ±adiendo contenido al calendario para visualizar tu estrategia
+                    Comienza añadiendo contenido al calendario para visualizar tu estrategia
                   </p>
                   <Button variant="outline" className="text-white border-[var(--dark-border)] mt-4">
                     Ver Clientes

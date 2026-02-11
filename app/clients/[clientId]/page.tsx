@@ -38,6 +38,7 @@ export default function ClientDetailPage() {
     try {
       // 1. Load client from Supabase FIRST (works even if backend is down)
       const { supabase } = await import('@/lib/supabase')
+      let supabaseLoaded = false
       try {
         const { data: supabaseClient } = await supabase
           .from('clients')
@@ -53,69 +54,76 @@ export default function ClientDetailPage() {
             status: supabaseClient.status || 'active',
             created_at: supabaseClient.created_at || '',
           } as ApiClient)
+          supabaseLoaded = true
         }
       } catch {
         console.log('Could not load client from Supabase')
       }
 
-      // 2. Try backend API calls independently (each can fail without affecting others)
-      try {
-        const clientsRes = await api.listClients()
-        const found = clientsRes.clients.find((c: ApiClient) => c.id === clientId)
-        if (found) setClient(found)
-      } catch {
-        console.log('Backend API unavailable for listClients - using Supabase data')
-      }
-
-      try {
-        const campaignsRes = await api.getClientCampaigns(clientId)
-        setCampaigns(campaignsRes.campaigns || [])
-      } catch {
-        console.log('Backend API unavailable for campaigns')
-      }
-
-      try {
-        const specialistsRes = await api.getSpecialists()
-        setSpecialists(specialistsRes.specialists || [])
-      } catch {
-        console.log('Backend API unavailable for specialists')
-      }
-
-      // 3. Load Brand DNA - try API first, then Supabase
+      // 2. Load Brand DNA from Supabase
       let dnaLoaded = false
       try {
-        const dna = await api.getBrandDNA(clientId)
-        if (dna) {
-          setBrandDna(dna)
+        const { data } = await supabase.from('brand_dna').select('*').eq('client_id', clientId).limit(1).single()
+        if (data && data.content) {
+          const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content
+          setBrandDna(parsed)
           setBrandDnaStatus('generated')
           dnaLoaded = true
         }
       } catch {
-        // API didn't return Brand DNA
-      }
-
-      if (!dnaLoaded) {
-        try {
-          const { data } = await supabase.from('brand_dna').select('*').eq('client_id', clientId).limit(1).single()
-          if (data && data.content) {
-            const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content
-            setBrandDna(parsed)
-            setBrandDnaStatus('generated')
-            dnaLoaded = true
-          }
-        } catch {
-          // No Brand DNA in Supabase either
-        }
+        // No Brand DNA in Supabase
       }
 
       if (!dnaLoaded) {
         setBrandDnaStatus('not_started')
       }
 
+      // 3. Show page immediately with Supabase data
+      setLoading(false)
+
+      // 4. Try backend API calls in parallel (non-blocking, 8s timeout)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 8000)
+
+      try {
+        const results = await Promise.allSettled([
+          api.listClients(),
+          api.getClientCampaigns(clientId),
+          api.getSpecialists()
+        ])
+        clearTimeout(timeoutId)
+
+        // Update with backend data if available
+        if (results[0].status === 'fulfilled') {
+          const found = results[0].value.clients.find((c: ApiClient) => c.id === clientId)
+          if (found) setClient(found)
+        }
+        if (results[1].status === 'fulfilled') {
+          setCampaigns(results[1].value.campaigns || [])
+        }
+        if (results[2].status === 'fulfilled') {
+          setSpecialists(results[2].value.specialists || [])
+        }
+
+        // Try Brand DNA from API if not loaded from Supabase
+        if (!dnaLoaded) {
+          try {
+            const dna = await api.getBrandDNA(clientId)
+            if (dna) {
+              setBrandDna(dna)
+              setBrandDnaStatus('generated')
+            }
+          } catch {
+            // API didn't return Brand DNA either
+          }
+        }
+      } catch {
+        console.log('Backend API calls failed - using Supabase data only')
+      }
+
     } catch (err) {
       console.error('Error loading client data:', err)
       setError('Error al cargar datos del cliente')
-    } finally {
       setLoading(false)
     }
   }

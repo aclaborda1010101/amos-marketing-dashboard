@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
 import { api, type Campaign, type ApiClient } from '@/lib/api'
-import { Plus, Search, Filter, Megaphone, TrendingUp, Users, Calendar, DollarSign, BarChart3, Loader2, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Plus, Search, Filter, Megaphone, TrendingUp, Users, Calendar, DollarSign, BarChart3, Loader2, X, CheckCircle, AlertCircle, Trash2 } from 'lucide-react'
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
@@ -136,6 +136,22 @@ export default function CampaignsPage() {
       setError(msg)
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    if (!confirm('Seguro que quieres eliminar esta campana?')) return
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      const { error: delError } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', Number(campaignId))
+      if (delError) throw delError
+      setSuccess('Campana eliminada')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar')
     }
   }
 
@@ -271,9 +287,12 @@ export default function CampaignsPage() {
                       <td className="text-[var(--dark-text-muted)] text-sm">
                         {new Date(campaign.submitted_at).toLocaleDateString('es-ES')}
                       </td>
-                      <td>
+                      <td className="flex gap-1">
                         <button className="icon-btn">
                           <BarChart3 className="w-4 h-4" />
+                        </button>
+                        <button className="icon-btn text-red-400 hover:text-red-300" onClick={() => handleDeleteCampaign(campaign.id)} title="Eliminar">
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>

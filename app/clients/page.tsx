@@ -49,32 +49,32 @@ export default function ClientsPage() {
   const handleCreateClient = async (data: ClientFormData) => {
     try {
       // Upload logo if provided
-      let logoUrl = ''
+      let logoUrl = null
       if (data.logo) {
         const fileExt = data.logo.name.split('.').pop()
-        const fileName = `${Date.now()}.${fileExt}`
-        const { error: uploadError } = await supabase.storage
-          .from('client-logos')
+        const fileName = `${Math.random()}.${fileExt}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('logos')
           .upload(fileName, data.logo)
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('client-logos')
-            .getPublicUrl(fileName)
-          logoUrl = urlData.publicUrl
-        }
+        if (uploadError) throw uploadError
+        const { data: { publicUrl } } = supabase.storage
+          .from('logos')
+          .getPublicUrl(fileName)
+        logoUrl = publicUrl
       }
 
       // Create client in Supabase
       const { data: newClient, error } = await supabase
         .from('clients')
-        .insert({
-          name: data.name,
-          industry: data.industry,
-          website: data.website,
-          logo_url: logoUrl,
-          brand_brief: data.brief,
-          status: 'active'
-        })
+        .insert([
+          {
+            name: data.name,
+            industry: data.industry,
+            brief: data.brief || '',
+            website: data.website || null,
+            status: 'active'
+          }
+        ])
         .select()
         .single()
 

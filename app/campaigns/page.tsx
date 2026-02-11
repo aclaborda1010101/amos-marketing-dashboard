@@ -38,12 +38,52 @@ export default function CampaignsPage() {
 
   const loadData = async () => {
     try {
-      const [campaignsRes, clientsRes] = await Promise.all([
-        api.listCampaigns(),
-        api.listClients()
-      ])
-      setCampaigns(campaignsRes.campaigns || [])
-      setClients(clientsRes.clients || [])
+      const { supabase } = await import('@/lib/supabase')
+
+      // Load clients from Supabase
+      const { data: clientsData } = await supabase
+        .from('clients')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (clientsData) {
+        setClients(clientsData.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          industry: c.industry || '',
+          website: c.website || '',
+          status: c.status || 'active',
+          brief: c.brief || ''
+        })))
+      }
+
+      // Load campaigns from Supabase
+      const { data: campaignsData } = await supabase
+        .from('campaigns')
+        .select('*')
+        .order('id', { ascending: false })
+
+      if (campaignsData) {
+        setCampaigns(campaignsData.map((c: any) => ({
+          id: String(c.id),
+          client_id: c.client_id,
+          name: c.campaign_name || '',
+          objective: c.objective || '',
+          platform: c.platform || '',
+          budget: typeof c.budget === 'number' ? c.budget : (c.budget || 0),
+          status: 'active',
+          start_date: '',
+          end_date: ''
+        })))
+      }
+
+      // Also try URL param for pre-selected client
+      const params = new URLSearchParams(window.location.search)
+      const preClient = params.get('client')
+      if (preClient) {
+        setForm(prev => ({ ...prev, client_id: preClient }))
+        setShowWizard(true)
+      }
     } catch (err) {
       console.error('Error loading data:', err)
     } finally {
@@ -68,36 +108,31 @@ export default function CampaignsPage() {
     setCreating(true)
     setError('')
     try {
-      // Calculate month from start_date or use current month
+      const { supabase } = await import('@/lib/supabase')
+
+      const platforms = form.platforms.length > 0 ? form.platforms.join(', ') : 'meta'
       const month = form.start_date
         ? form.start_date.substring(0, 7)
         : new Date().toISOString().substring(0, 7)
-      const platforms = form.platforms.length > 0 ? form.platforms : undefined
 
-      // Initialize client state first (in case it hasn't been done)
-      const selectedClient = clients.find(c => c.id === form.client_id)
-      if (selectedClient) {
-        try {
-          await api.initializeClientState({
-            id: selectedClient.id,
-            name: selectedClient.name,
-            industry: selectedClient.industry,
-            website: selectedClient.website || undefined,
-            brief: selectedClient.brief || undefined
-          })
-        } catch (initErr) {
-          console.log('State init (may already exist):', initErr)
-        }
-      }
+      const { error: insertError } = await supabase.from('campaigns').insert({
+        client_id: form.client_id,
+        campaign_name: form.name,
+        objective: form.objective,
+        platform: platforms,
+        budget: form.budget ? Number(form.budget) : 0,
+        duration: '7 dias'
+      })
 
-      await api.generateContentCalendar(form.client_id, month, platforms)
-      setSuccess('Campaña creada exitosamente')
+      if (insertError) throw insertError
+
+      setSuccess('Campa\u00f1a creada exitosamente')
       setShowWizard(false)
       setWizardStep(1)
       setForm({ client_id: '', name: '', objective: '', platforms: [], budget: '', start_date: '', end_date: '' })
       loadData()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error al crear campaña'
+      const msg = err instanceof Error ? err.message : 'Error al crear campa\u00f1a'
       setError(msg)
     } finally {
       setCreating(false)

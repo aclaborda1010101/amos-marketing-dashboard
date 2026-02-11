@@ -104,6 +104,7 @@ export default function ClientDetailPage() {
           await supabase.from('brand_dna').insert({
             client_id: clientId,
             content: JSON.stringify(result.brand_dna),
+            content_hash: 'v1',
             approved: false
           })
         } catch (saveErr) {

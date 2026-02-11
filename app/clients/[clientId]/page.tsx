@@ -61,10 +61,11 @@ export default function ClientDetailPage() {
       if (!dnaLoaded) {
         try {
           const { supabase } = await import('@/lib/supabase')
-          const { data } = await supabase.from('brand_dna').select('*').eq('client_id', clientId).single()
-          if (data && data.data) {
-            setBrandDna(data.data)
-            setBrandDnaStatus(data.status || 'generated')
+          const { data } = await supabase.from('brand_dna').select('*').eq('client_id', clientId).limit(1).single()
+          if (data && data.content) {
+            const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content
+            setBrandDna(parsed)
+            setBrandDnaStatus('generated')
             dnaLoaded = true
           }
         } catch {
@@ -98,12 +99,13 @@ export default function ClientDetailPage() {
         // Save to Supabase
         try {
           const { supabase } = await import('@/lib/supabase')
-          await supabase.from('brand_dna').upsert({
+          // Delete existing then insert new
+          await supabase.from('brand_dna').delete().eq('client_id', clientId)
+          await supabase.from('brand_dna').insert({
             client_id: clientId,
-            data: result.brand_dna,
-            status: 'generated',
-            created_at: new Date().toISOString()
-          }, { onConflict: 'client_id' })
+            content: JSON.stringify(result.brand_dna),
+            approved: false
+          })
         } catch (saveErr) {
           console.log('Brand DNA save to DB:', saveErr)
         }

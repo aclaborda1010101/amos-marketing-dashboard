@@ -76,32 +76,30 @@ export default function ClientDetailPage() {
     setError('')
     setSuccessMsg('')
     try {
-      // Initialize client state in backend first
-      try {
-        await api.initializeClientState({
-          id: client.id,
-          name: client.name,
-          industry: client.industry,
-          website: client.website || undefined,
-          brief: client.brief || undefined
-        })
-      } catch (initErr) {
-        console.log('State init (may already exist):', initErr)
-      }
-      await api.generateBrandDNA(clientId)
       setBrandDnaStatus('in_progress')
-      setSuccessMsg('ADN de Marca iniciado. Puede tardar unos minutos...')
-      const pollInterval = setInterval(() => {
-        api.getBrandDNA(clientId).then(dna => {
-          if (dna) {
-            setBrandDna(dna)
-            setBrandDnaStatus('generated')
-            setSuccessMsg('ADN de Marca generado exitosamente')
-            clearInterval(pollInterval)
-          }
-        }).catch(() => {})
-      }, 5000)
-      setTimeout(() => clearInterval(pollInterval), 120000)
+      setSuccessMsg('Generando ADN de Marca con IA...')
+      const result = await api.generateBrandDNA(clientId)
+      if (result && result.brand_dna) {
+        setBrandDna(result.brand_dna)
+        setBrandDnaStatus('generated')
+        setSuccessMsg('ADN de Marca generado exitosamente')
+        // Save to Supabase
+        try {
+          const { supabase } = await import('@/lib/supabase')
+          await supabase.from('brand_dna').upsert({
+            client_id: clientId,
+            data: result.brand_dna,
+            status: 'generated',
+            created_at: new Date().toISOString()
+          }, { onConflict: 'client_id' })
+        } catch (saveErr) {
+          console.log('Brand DNA save to DB:', saveErr)
+        }
+      } else {
+        setBrandDna(result)
+        setBrandDnaStatus('generated')
+        setSuccessMsg('ADN de Marca generado exitosamente')
+      }
     } catch (err) {
       console.error('Error generating Brand DNA:', err)
       const msg = err instanceof Error ? err.message : 'Error al generar Brand DNA'

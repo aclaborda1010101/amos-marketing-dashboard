@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
 import { supabase, type Client } from '@/lib/supabase'
+import { ClientWizard, type ClientFormData } from '@/components/wizard/client-wizard'
+import { useRouter } from 'next/navigation'
 import { 
   Plus, 
   Search, 
@@ -20,6 +22,8 @@ import {
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
+  const [showWizard, setShowWizard] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     loadClients()
@@ -39,6 +43,53 @@ export default function ClientsPage() {
       console.error('Error loading clients:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCreateClient = async (data: ClientFormData) => {
+    try {
+      // Upload logo if provided
+      let logoUrl = ''
+      if (data.logo) {
+        const fileExt = data.logo.name.split('.').pop()
+        const fileName = `${Date.now()}.${fileExt}`
+        const { error: uploadError } = await supabase.storage
+          .from('client-logos')
+          .upload(fileName, data.logo)
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('client-logos')
+            .getPublicUrl(fileName)
+          logoUrl = urlData.publicUrl
+        }
+      }
+
+      // Create client in Supabase
+      const { data: newClient, error } = await supabase
+        .from('clients')
+        .insert({
+          name: data.name,
+          industry: data.industry,
+          website: data.website,
+          logo_url: logoUrl,
+          brand_brief: data.brief,
+          status: 'active'
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setShowWizard(false)
+      // Navigate to the new client page
+      if (newClient) {
+        router.push(`/clients/${newClient.id}`)
+      } else {
+        await loadClients()
+      }
+    } catch (error) {
+      console.error('Error creating client:', error)
+      alert('Error al crear cliente')
     }
   }
 
@@ -127,12 +178,10 @@ export default function ClientsPage() {
               <Filter className="w-4 h-4" />
             </button>
             
-            <Link href="/clients/new">
-              <Button className="btn-primary" size="sm">
+            <Button className="btn-primary" size="sm" onClick={() => setShowWizard(true)}>
                 <Plus className="w-4 h-4" />
                 Nuevo Cliente
               </Button>
-            </Link>
           </div>
         </header>
 
@@ -172,12 +221,10 @@ export default function ClientsPage() {
                       <p className="empty-state-description max-w-sm mx-auto">
                         Crea tu primer cliente para empezar a gestionar campañas y contenido
                       </p>
-                      <Link href="/clients/new">
-                        <Button className="btn-primary mt-6">
-                          <Plus className="w-4 h-4" />
-                          Crear Cliente
-                        </Button>
-                      </Link>
+                      <Button className="btn-primary mt-6" onClick={() => setShowWizard(true)}>
+                        <Plus className="w-4 h-4" />
+                        Crear Cliente
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -251,6 +298,14 @@ export default function ClientsPage() {
             )}
           </div>
         </main>
+
+        {/* Wizard Modal */}
+        {showWizard && (
+          <ClientWizard
+            onComplete={handleCreateClient}
+            onCancel={() => setShowWizard(false)}
+          />
+        )}
       </div>
     </div>
   )

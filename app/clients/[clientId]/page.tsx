@@ -132,7 +132,6 @@ export default function ClientDetailPage() {
         if (results[2].status === 'fulfilled') {
           setSpecialists(results[2].value.specialists || [])
         }
-        }
       } catch {
         console.log('Backend API calls failed - using Supabase data only')
       }

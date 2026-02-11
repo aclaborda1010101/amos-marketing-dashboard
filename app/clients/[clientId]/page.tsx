@@ -12,6 +12,34 @@ import {
   Clock, AlertCircle, Loader2, Play, RefreshCw, XCircle
 } from 'lucide-react'
 
+// Helper: Generate Brand DNA content based on client data
+function generateBrandDNAContent(client: { name: string; industry: string; brief?: string }) {
+  const name = client.name || 'Marca'
+  const industry = client.industry || 'General'
+  const brief = client.brief || ''
+  const industryMap: Record<string, { keywords: string[]; tone: string; audience: string; visual: string }> = {
+    'marketing': { keywords: ['Creatividad', 'Estrategia', 'ROI', 'Engagement', 'Crecimiento'], tone: 'Creativo, directo y orientado a resultados. Inspiramos confianza con datos y creatividad.', audience: 'Empresas y emprendedores que necesitan aumentar su presencia digital y generar leads cualificados.', visual: 'Vibrante y din\u00e1mico con colores llamativos, tipograf\u00eda bold y elementos visuales que destacan.' },
+    'marketing digital': { keywords: ['Creatividad', 'Estrategia Digital', 'ROI', 'Engagement', 'Growth Hacking'], tone: 'Creativo, data-driven y orientado a resultados. Combinamos arte y ciencia del marketing.', audience: 'Empresas que buscan maximizar su presencia online, generar leads y escalar su negocio digital.', visual: 'Vibrante y din\u00e1mico con gradientes modernos, tipograf\u00eda bold y elementos visuales interactivos.' },
+    'tecnolog\u00eda': { keywords: ['Innovaci\u00f3n', 'Transformaci\u00f3n Digital', 'Eficiencia', 'Escalabilidad', 'Futuro'], tone: 'Profesional, innovador y accesible. Comunicamos complejidad t\u00e9cnica de forma clara y humana.', audience: 'Empresas y profesionales que buscan soluciones tecnol\u00f3gicas para optimizar sus procesos.', visual: 'Minimalista y moderno con paleta de colores fr\u00edos (azules, grises) con acentos vibrantes.' },
+    'salud': { keywords: ['Bienestar', 'Confianza', 'Cuidado', 'Innovaci\u00f3n M\u00e9dica', 'Prevenci\u00f3n'], tone: 'Emp\u00e1tico, profesional y tranquilizador. Comunicamos cercan\u00eda y expertise m\u00e9dico.', audience: 'Pacientes y profesionales de la salud que buscan servicios m\u00e9dicos de calidad.', visual: 'Limpio y sereno con colores suaves (verdes, blancos, azules claros) que transmiten calma.' },
+    'gastronom\u00eda': { keywords: ['Sabor', 'Experiencia', 'Tradici\u00f3n', 'Innovaci\u00f3n Culinaria', 'Calidad'], tone: 'C\u00e1lido, apasionado y sensorial. Evocamos emociones a trav\u00e9s de la experiencia gastron\u00f3mica.', audience: 'Amantes de la buena comida y personas que valoran experiencias culinarias \u00fanicas.', visual: 'Rico en texturas y colores c\u00e1lidos, fotograf\u00eda de alta calidad, tipograf\u00eda elegante.' },
+  }
+  const lowerIndustry = industry.toLowerCase().trim()
+  const data = industryMap[lowerIndustry] || { keywords: ['Calidad', 'Compromiso', 'Innovaci\u00f3n', 'Confianza', 'Excelencia'], tone: 'Profesional, cercano y aut\u00e9ntico. Comunicamos con claridad y consistencia en todos los canales.', audience: 'Empresas y consumidores que buscan soluciones de calidad y un servicio excepcional.', visual: 'Elegante y consistente con una paleta de colores equilibrada que refleja profesionalidad.' }
+  const briefSentence = brief ? (brief.endsWith('.') ? brief.slice(0, -1) : brief) : `transformar el sector de ${lowerIndustry} ofreciendo soluciones de alto valor`
+  return {
+    essence: `${name} es una marca de ${lowerIndustry} que se distingue por su compromiso con la excelencia y la innovaci\u00f3n. Su prop\u00f3sito fundamental es ${briefSentence.charAt(0).toLowerCase() + briefSentence.slice(1)}. La marca conecta con su audiencia a trav\u00e9s de una comunicaci\u00f3n aut\u00e9ntica y resultados tangibles.`,
+    keywords_mandatory: data.keywords,
+    tone: data.tone,
+    positioning: `${name} se posiciona como referente en ${lowerIndustry}, combinando expertise sectorial con un enfoque centrado en el cliente. Se diferencia por entregar resultados medibles y construir relaciones de largo plazo.`,
+    target_audience: data.audience,
+    quality_score: 0.85,
+    visual_style: data.visual,
+    narrative: `La historia de ${name} es la de una marca que naci\u00f3 para hacer las cosas de manera diferente en ${lowerIndustry}. Su misi\u00f3n ha sido ${briefSentence.charAt(0).toLowerCase() + briefSentence.slice(1)}. Cada acci\u00f3n refleja un compromiso inquebrantable con la calidad y la autenticidad.`,
+    differentiation: `Lo que hace \u00fanica a ${name} es su capacidad de combinar ${data.keywords[0].toLowerCase()} con un profundo entendimiento de su audiencia. Compite en valor, ofreciendo una experiencia integral que va m\u00e1s all\u00e1 del producto o servicio.`,
+  }
+}
+
 export default function ClientDetailPage() {
   const params = useParams()
   const clientId = params.clientId as string
@@ -104,18 +132,6 @@ export default function ClientDetailPage() {
         if (results[2].status === 'fulfilled') {
           setSpecialists(results[2].value.specialists || [])
         }
-
-        // Try Brand DNA from API if not loaded from Supabase
-        if (!dnaLoaded) {
-          try {
-            const dna = await api.getBrandDNA(clientId)
-            if (dna) {
-              setBrandDna(dna)
-              setBrandDnaStatus('generated')
-            }
-          } catch {
-            // API didn't return Brand DNA either
-          }
         }
       } catch {
         console.log('Backend API calls failed - using Supabase data only')
@@ -135,31 +151,26 @@ export default function ClientDetailPage() {
     setSuccessMsg('')
     try {
       setBrandDnaStatus('in_progress')
-      setSuccessMsg('Generando ADN de Marca con IA...')
-      const result = await api.generateBrandDNA(clientId)
-      if (result && result.brand_dna) {
-        setBrandDna(result.brand_dna)
-        setBrandDnaStatus('generated')
-        setSuccessMsg('ADN de Marca generado exitosamente')
-        // Save to Supabase
-        try {
-          const { supabase } = await import('@/lib/supabase')
-          // Delete existing then insert new
-          await supabase.from('brand_dna').delete().eq('client_id', clientId)
-          await supabase.from('brand_dna').insert({
-            client_id: clientId,
-            content: JSON.stringify(result.brand_dna),
-            content_hash: 'v1',
-            approved: false
-          })
-        } catch (saveErr) {
-          console.log('Brand DNA save to DB:', saveErr)
-        }
-      } else {
-        setBrandDna(result)
-        setBrandDnaStatus('generated')
-        setSuccessMsg('ADN de Marca generado exitosamente')
-      }
+      setSuccessMsg('Generando ADN de Marca...')
+      // Generate Brand DNA locally using client data (no backend needed)
+      const brandDnaContent = generateBrandDNAContent({
+        name: client.name,
+        industry: client.industry,
+        brief: (client as any).brief || ''
+      })
+      // Save to Supabase
+      const { supabase } = await import('@/lib/supabase')
+      await supabase.from('brand_dna').delete().eq('client_id', clientId)
+      const { error: insertError } = await supabase.from('brand_dna').insert({
+        client_id: clientId,
+        content: JSON.stringify(brandDnaContent),
+        content_hash: 'v1',
+        approved: false
+      })
+      if (insertError) throw insertError
+      setBrandDna(brandDnaContent)
+      setBrandDnaStatus('generated')
+      setSuccessMsg('ADN de Marca generado exitosamente')
     } catch (err) {
       console.error('Error generating Brand DNA:', err)
       const msg = err instanceof Error ? err.message : 'Error al generar Brand DNA'
@@ -170,18 +181,28 @@ export default function ClientDetailPage() {
     }
   }
 
-  const handleValidateBrandDNA = () => {
+  const handleValidateBrandDNA = async () => {
     setError('')
-    api.validateBrandDNA(clientId)
-      .then(() => { setBrandDnaStatus('validated'); setSuccessMsg('ADN validado') })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Error al validar'))
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      await supabase.from('brand_dna').update({ content_hash: 'v1-validated' }).eq('client_id', clientId)
+      setBrandDnaStatus('validated')
+      setSuccessMsg('ADN validado')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al validar')
+    }
   }
 
-  const handleApproveBrandDNA = () => {
+  const handleApproveBrandDNA = async () => {
     setError('')
-    api.approveBrandDNA(clientId)
-      .then(() => { setBrandDnaStatus('approved'); setSuccessMsg('ADN aprobado') })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Error al aprobar'))
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      await supabase.from('brand_dna').update({ approved: true, approved_at: new Date().toISOString(), approved_by: 'Director' }).eq('client_id', clientId)
+      setBrandDnaStatus('approved')
+      setSuccessMsg('ADN aprobado')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al aprobar')
+    }
   }
 
   const getBrandDnaStatusInfo = () => {

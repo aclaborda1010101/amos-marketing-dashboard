@@ -24,6 +24,7 @@ export default function CampaignsPage() {
     start_date: '',
     end_date: '',
   })
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -140,7 +141,7 @@ export default function CampaignsPage() {
   }
 
   const handleDeleteCampaign = async (campaignId: string) => {
-    if (!confirm('Seguro que quieres eliminar esta campana?')) return
+    if (!campaignId) return
     try {
       const { supabase } = await import('@/lib/supabase')
       const { error: delError } = await supabase
@@ -149,10 +150,13 @@ export default function CampaignsPage() {
         .eq('id', Number(campaignId))
       if (delError) throw delError
       setSuccess('Campana eliminada')
+      setDeleteConfirm(null)
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar')
+      setDeleteConfirm(null)
     }
+  }
   }
 
   const platformOptions = [
@@ -291,7 +295,7 @@ export default function CampaignsPage() {
                         <button className="icon-btn">
                           <BarChart3 className="w-4 h-4" />
                         </button>
-                        <button className="icon-btn text-red-400 hover:text-red-300" onClick={() => handleDeleteCampaign(campaign.id)} title="Eliminar">
+                        <button className="icon-btn text-red-400 hover:text-red-300" onClick={() => setDeleteConfirm(campaign.id)} title="Eliminar">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
@@ -477,6 +481,19 @@ export default function CampaignsPage() {
                     )}
                   </Button>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {deleteConfirm && (
+          <div className="modal-overlay" style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:50}}>
+            <div className="card p-6" style={{maxWidth:'400px',width:'100%'}}>
+              <h3 className="text-lg font-semibold text-white mb-3">Eliminar Campana</h3>
+              <p className="text-[var(--dark-text-secondary)] mb-4">Estas seguro de que quieres eliminar esta campana? Esta accion no se puede deshacer.</p>
+              <div className="flex gap-3 justify-end">
+                <button className="btn-secondary px-4 py-2 rounded" onClick={() => setDeleteConfirm(null)}>Cancelar</button>
+                <button className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-medium" onClick={() => handleDeleteCampaign(deleteConfirm)}>Eliminar</button>
               </div>
             </div>
           </div>

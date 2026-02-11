@@ -120,7 +120,7 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-[var(--dark-background)] border border-[var(--dark-border)] rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-slide-in">
+      <div className="bg-[var(--dark-background)] border border-[var(--dark-border)] rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-slide-in">
         {/* Header */}
         <div className="bg-gradient-to-r from-lime-500 to-lime-600 p-6 text-black">
           <h2 className="text-2xl font-bold mb-2">Nuevo Cliente</h2>
@@ -160,7 +160,7 @@ export function ClientWizard({ onComplete, onCancel }: ClientWizardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6 min-h-[400px]">
+        <div className="p-6 flex-1 overflow-y-auto">
           {/* Step 1: Información Básica */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-slide-in">

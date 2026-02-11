@@ -155,7 +155,7 @@ export const api = {
 
   // --- Brand DNA ---
   async generateBrandDNA(clientId: string): Promise<any> {
-    return apiPost('/generate-brand-dna', {
+    return apiPost('/generate-brand-dna-test', {
       client_id: clientId
     })
   },

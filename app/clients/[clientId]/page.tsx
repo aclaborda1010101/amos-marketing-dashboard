@@ -46,21 +46,33 @@ export default function ClientDetailPage() {
       setCampaigns(campaignsRes.campaigns || [])
       setSpecialists(specialistsRes.specialists || [])
 
+      // Load Brand DNA - try API first, then Supabase
+      let dnaLoaded = false
       try {
         const dna = await api.getBrandDNA(clientId)
         if (dna) {
           setBrandDna(dna)
           setBrandDnaStatus('generated')
+          dnaLoaded = true
         }
       } catch {
-        setBrandDnaStatus('not_started')
+        // API didn't return Brand DNA
       }
-
-      try {
-        const state = await api.getClientState(clientId)
-        if (state?.brand_dna_state) setBrandDnaStatus(state.brand_dna_state)
-      } catch {
-        // State not initialized yet
+      if (!dnaLoaded) {
+        try {
+          const { supabase } = await import('@/lib/supabase')
+          const { data } = await supabase.from('brand_dna').select('*').eq('client_id', clientId).single()
+          if (data && data.data) {
+            setBrandDna(data.data)
+            setBrandDnaStatus(data.status || 'generated')
+            dnaLoaded = true
+          }
+        } catch {
+          // No Brand DNA in Supabase either
+        }
+      }
+      if (!dnaLoaded) {
+        setBrandDnaStatus('not_started')
       }
     } catch (err) {
       console.error('Error loading client data:', err)

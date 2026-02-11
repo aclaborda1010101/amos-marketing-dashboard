@@ -60,22 +60,26 @@ export default function Dashboard() {
 
   const handleCreateClient = async (formData: ClientFormData) => {
     try {
-      // Upload logo if provided
+      // Upload logo if provided (non-blocking)
       let logoUrl = null
       if (formData.logo) {
-        const fileExt = formData.logo.name.split('.').pop()
-        const fileName = `${Math.random()}.${fileExt}`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('logos')
-          .upload(fileName, formData.logo)
-
-        if (uploadError) throw uploadError
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('logos')
-          .getPublicUrl(fileName)
-
-        logoUrl = publicUrl
+        try {
+          const fileExt = formData.logo.name.split('.').pop()
+          const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
+          const { error: uploadError } = await supabase.storage
+            .from('logos')
+            .upload(fileName, formData.logo)
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('logos')
+              .getPublicUrl(fileName)
+            logoUrl = publicUrl
+          } else {
+            console.warn('Logo upload failed:', uploadError.message)
+          }
+        } catch (logoErr) {
+          console.warn('Logo upload error:', logoErr)
+        }
       }
 
       // Create client

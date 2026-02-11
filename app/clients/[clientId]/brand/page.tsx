@@ -29,27 +29,33 @@ export default function BrandDNAPage() {
 
   const loadBrandDNA = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
-      
-      const response = await fetch(`${apiUrl}/brand-dna/${clientId}`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.brand_dna) {
-          setBrandDNA({
-            status: 'generated',
-            values: data.brand_dna.keywords_mandatory || [],
-            tone: data.brand_dna.tone || '',
-            positioning: data.brand_dna.positioning || '',
-            target: data.brand_dna.target_audience || '',
-            quality_score: Math.round((data.brand_dna.quality_score || 0) * 100),
-            essence: data.brand_dna.essence || '',
-            visual_style: data.brand_dna.visual_style || '',
-            narrative: data.brand_dna.narrative || '',
-            differentiation: data.brand_dna.differentiation || ''
-          })
-        }
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error: dbError } = await supabase
+        .from('brand_dna')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (dbError || !data) {
+        console.log('No Brand DNA found for client')
+        return
       }
+
+      const content = typeof data.content === 'string' ? JSON.parse(data.content) : data.content
+      setBrandDNA({
+        values: content.keywords_mandatory || [],
+        tone: content.tone || '',
+        positioning: content.positioning || '',
+        target: content.target_audience || '',
+        quality_score: Math.round((content.quality_score || 0) * 100),
+        essence: content.essence || '',
+        visual_style: content.visual_style || '',
+        narrative: content.narrative || '',
+        differentiation: content.differentiation || '',
+        approved: data.approved || false
+      })
     } catch (err) {
       console.error('Error loading brand DNA:', err)
     }
@@ -58,28 +64,56 @@ export default function BrandDNAPage() {
   const regenerateBrandDNA = async () => {
     setLoading(true)
     setError(null)
-    
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manias-backend-production.up.railway.app'
-      
-      const response = await fetch(`${apiUrl}/generate-brand-dna`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: clientId
-        })
-      })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || 'Error al generar Brand DNA')
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      
+      // Load client info for generation
+      const { data: clientData } = await supabase
+        .from('clients')
+        .select('name, industry, brief')
+        .eq('id', clientId)
+        .single()
+
+      const name = clientData?.name || 'Marca'
+      const industry = clientData?.industry || 'General'
+      const brief = clientData?.brief || ''
+      const lowerIndustry = industry.toLowerCase().trim()
+
+      const industryDefaults: Record<string, { keywords: string[]; tone: string; audience: string; visual: string }> = {
+        'marketing': { keywords: ['Creatividad', 'Estrategia', 'ROI', 'Engagement', 'Crecimiento'], tone: 'Creativo, directo y orientado a resultados.', audience: 'Empresas y emprendedores', visual: 'Moderno y vibrante' },
+        'marketing digital': { keywords: ['Estrategia Digital', 'ROI', 'Growth Hacking', 'Engagement', 'Data-Driven'], tone: 'Creativo, data-driven y orientado a resultados.', audience: 'Empresas que buscan presencia digital', visual: 'Digital-first, moderno' },
+        'tecnologia': { keywords: ['Innovacion', 'Transformacion Digital', 'Eficiencia', 'Escalabilidad', 'Futuro'], tone: 'Profesional, innovador y accesible.', audience: 'Empresas en transformacion digital', visual: 'Tech, limpio y futurista' },
       }
 
-      // Reload Brand DNA after generation
+      const data = industryDefaults[lowerIndustry] || { keywords: ['Calidad', 'Compromiso', 'Innovacion', 'Confianza', 'Excelencia'], tone: 'Profesional, cercano y autentico.', audience: 'Publico general y empresas', visual: 'Elegante y profesional' }
+      const briefText = brief || 'transformar su sector ofreciendo soluciones de alto valor'
+
+      const brandContent = {
+        essence: name + ' es una marca de ' + lowerIndustry + ' comprometida con la excelencia y la innovacion. ' + briefText,
+        keywords_mandatory: data.keywords,
+        tone: data.tone,
+        positioning: name + ' se posiciona como referente en ' + lowerIndustry + ', combinando expertise con enfoque centrado en el cliente.',
+        target_audience: data.audience,
+        quality_score: 0.85,
+        visual_style: data.visual,
+        narrative: 'La historia de ' + name + ' es una de pasion por ' + lowerIndustry + ' y compromiso con resultados excepcionales.',
+        differentiation: 'Lo que hace unica a ' + name + ' es su combinacion de creatividad, estrategia y enfoque personalizado.'
+      }
+
+      // Delete old and insert new
+      await supabase.from('brand_dna').delete().eq('client_id', clientId)
+      const { error: insertError } = await supabase.from('brand_dna').insert({
+        client_id: clientId,
+        content: JSON.stringify(brandContent),
+        content_hash: 'v1',
+        approved: false
+      })
+      if (insertError) throw insertError
+
+      // Reload
       await loadBrandDNA()
-      
+
     } catch (err: any) {
       setError(err.message || 'Error desconocido')
       console.error('Error regenerating brand DNA:', err)

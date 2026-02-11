@@ -157,7 +157,6 @@ export default function CampaignsPage() {
       setDeleteConfirm(null)
     }
   }
-  }
 
   const platformOptions = [
     { id: 'instagram', label: 'Instagram', icon: '📷' },

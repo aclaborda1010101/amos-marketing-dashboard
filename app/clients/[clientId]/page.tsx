@@ -95,7 +95,14 @@ export default function ClientDetailPage() {
         if (data && data.content) {
           const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content
           setBrandDna(parsed)
-          setBrandDnaStatus('generated')
+          // Restore correct status based on saved state
+          if (data.approved === true) {
+            setBrandDnaStatus('approved')
+          } else if (data.content_hash && data.content_hash.includes('validated')) {
+            setBrandDnaStatus('validated')
+          } else {
+            setBrandDnaStatus('generated')
+          }
           dnaLoaded = true
         }
       } catch {

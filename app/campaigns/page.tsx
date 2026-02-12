@@ -106,8 +106,7 @@ export default function CampaignsPage() {
   const generateCampaignContent = async (campaignId: number, clientId: string, campaignName: string, platform: string, objective: string) => {
     const { supabase } = await import('@/lib/supabase')
     const startDate = new Date()
-    const endDate = new Date(startDate)
-    endDate.setDate(endDate.getDate() + 28)
+    const month = startDate.toISOString().substring(0, 7)
 
     let clientName = clientId
     try {
@@ -117,8 +116,8 @@ export default function CampaignsPage() {
 
     const makePosts = (obj: string): string[] => {
       const m: Record<string, string[]> = {
-        awareness: ['Descubre por que ' + clientName + ' es lider. #Innovacion', 'Conoce nuestra historia. #MarcaLider', 'Cada detalle importa en ' + clientName + '.', 'Nuestra mision: lo mejor para ti.', 'Vision de futuro de ' + clientName + '.', 'Calidad y pasion. Bienvenido.'],
         engagement: ['Que valoras de ' + clientName + '? Cuentanos!', 'SORTEO! Etiqueta 2 amigos y siguenos.', 'Comparte tu experiencia con nosotros!', 'Cual es tu favorito? A) Clasico B) Premium', 'Detras de camaras en ' + clientName + '.', 'Que te gustaria ver proximamente?'],
+        awareness: ['Descubre por que ' + clientName + ' es lider. #Innovacion', 'Conoce nuestra historia. #MarcaLider', 'Cada detalle importa en ' + clientName + '.', 'Nuestra mision: lo mejor para ti.', 'Vision de futuro de ' + clientName + '.', 'Calidad y pasion. Bienvenido.'],
         conversion: ['OFERTA: 20% en ' + clientName + '. Solo esta semana!', 'Los mas vendidos con envio gratis.', 'Ultimas unidades al mejor precio!', 'Flash Sale: 48h precios increibles.', 'La mejor inversion segun clientes.', 'Pack exclusivo con regalo incluido!'],
         branding: ['Innovacion, Calidad y Cercania. Somos ' + clientName + '.', 'Nuestra historia: de sueno a referente.', clientName + ' y la comunidad local.', 'El equipo detras de ' + clientName + '.', 'Diseno, calidad y proposito.', 'De lo local a lo global.'],
       }
@@ -126,7 +125,7 @@ export default function CampaignsPage() {
     }
 
     const templates = makePosts(objective)
-    const posts = []
+    const postsData: any[] = []
     const totalPosts = 8
 
     for (let i = 0; i < totalPosts; i++) {
@@ -134,44 +133,39 @@ export default function CampaignsPage() {
       const weekNum = Math.floor(i / 2)
       const dayInWeek = i % 2 === 0 ? 1 : 4
       postDate.setDate(postDate.getDate() + weekNum * 7 + dayInWeek)
-      posts.push({
+      postsData.push({
         post_id: 'post-' + campaignId + '-' + (i + 1),
         client_id: clientId,
-        content: templates[i % templates.length],
+        caption: templates[i % templates.length],
         platform: platform,
         scheduled_date: postDate.toISOString().split('T')[0],
-        status: 'draft',
-        created_at: new Date().toISOString(),
+        post_type: 'social_post',
       })
     }
 
-    try { await supabase.from('posts').insert(posts) } catch {}
+    try { await supabase.from('posts').insert(postsData) } catch (e) { console.error('Posts insert error:', e) }
 
     try {
       await supabase.from('content_calendars').insert({
-        campaign_id: campaignId, client_id: clientId,
-        name: 'Calendario - ' + campaignName,
-        status: 'active', objective: objective,
-        platforms: JSON.stringify([platform]),
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        summary: totalPosts + ' publicaciones en ' + platform + ' durante 4 semanas.',
-        submitted_at: new Date().toISOString(),
+        client_id: clientId,
+        month: month,
+        posts_count: totalPosts,
+        posts: JSON.stringify(postsData.map(p => ({ caption: p.caption, platform: p.platform, date: p.scheduled_date }))),
+        strategy_notes: 'Campana: ' + campaignName + ' | Objetivo: ' + objective + ' | ' + totalPosts + ' posts en ' + platform,
+        content_hash: 'campaign-' + campaignId,
       })
-    } catch {}
+    } catch (e) { console.error('Calendar insert error:', e) }
 
     try {
       await supabase.from('approval_queue').insert([
-        { request_id: 'plan-' + campaignId, client_id: clientId, type: 'campaign_plan', status: 'pending',
-          content: JSON.stringify({ campaign_name: campaignName, platform, objective, total_posts: totalPosts }),
-          submitted_at: new Date().toISOString() },
-        { request_id: 'content-' + campaignId, client_id: clientId, type: 'content_batch', status: 'pending',
-          content: JSON.stringify({ campaign_name: campaignName, batch_size: totalPosts, samples: posts.slice(0,2).map(p => p.content) }),
-          submitted_at: new Date().toISOString() },
+        { request_id: 'plan-' + campaignId, client_id: clientId, approval_type: 'campaign_plan', resource_id: campaignId, status: 'pending',
+          resource_data: JSON.stringify({ campaign_name: campaignName, platform, objective, total_posts: totalPosts }) },
+        { request_id: 'content-' + campaignId, client_id: clientId, approval_type: 'content_batch', resource_id: campaignId, status: 'pending',
+          resource_data: JSON.stringify({ campaign_name: campaignName, batch_size: totalPosts, samples: postsData.slice(0, 2).map(p => p.caption) }) },
       ])
-    } catch {}
+    } catch (e) { console.error('Approval insert error:', e) }
 
-    return { postsCreated: posts.length }
+    return { postsCreated: postsData.length }
   }
   const handleCreate = async () => {
     if (!form.client_id || !form.name || !form.objective) {

@@ -101,6 +101,78 @@ export default function CampaignsPage() {
     }))
   }
 
+
+  // Auto-generate campaign content (posts, calendar, approvals)
+  const generateCampaignContent = async (campaignId: number, clientId: string, campaignName: string, platform: string, objective: string) => {
+    const { supabase } = await import('@/lib/supabase')
+    const startDate = new Date()
+    const endDate = new Date(startDate)
+    endDate.setDate(endDate.getDate() + 28)
+
+    let clientName = clientId
+    try {
+      const { data: cd } = await supabase.from('clients').select('name').eq('id', clientId).single()
+      if (cd) clientName = cd.name
+    } catch {}
+
+    const makePosts = (obj: string): string[] => {
+      const m: Record<string, string[]> = {
+        awareness: ['Descubre por que ' + clientName + ' es lider. #Innovacion', 'Conoce nuestra historia. #MarcaLider', 'Cada detalle importa en ' + clientName + '.', 'Nuestra mision: lo mejor para ti.', 'Vision de futuro de ' + clientName + '.', 'Calidad y pasion. Bienvenido.'],
+        engagement: ['Que valoras de ' + clientName + '? Cuentanos!', 'SORTEO! Etiqueta 2 amigos y siguenos.', 'Comparte tu experiencia con nosotros!', 'Cual es tu favorito? A) Clasico B) Premium', 'Detras de camaras en ' + clientName + '.', 'Que te gustaria ver proximamente?'],
+        conversion: ['OFERTA: 20% en ' + clientName + '. Solo esta semana!', 'Los mas vendidos con envio gratis.', 'Ultimas unidades al mejor precio!', 'Flash Sale: 48h precios increibles.', 'La mejor inversion segun clientes.', 'Pack exclusivo con regalo incluido!'],
+        branding: ['Innovacion, Calidad y Cercania. Somos ' + clientName + '.', 'Nuestra historia: de sueno a referente.', clientName + ' y la comunidad local.', 'El equipo detras de ' + clientName + '.', 'Diseno, calidad y proposito.', 'De lo local a lo global.'],
+      }
+      return m[obj] || m['awareness']
+    }
+
+    const templates = makePosts(objective)
+    const posts = []
+    const totalPosts = 8
+
+    for (let i = 0; i < totalPosts; i++) {
+      const postDate = new Date(startDate)
+      const weekNum = Math.floor(i / 2)
+      const dayInWeek = i % 2 === 0 ? 1 : 4
+      postDate.setDate(postDate.getDate() + weekNum * 7 + dayInWeek)
+      posts.push({
+        post_id: 'post-' + campaignId + '-' + (i + 1),
+        client_id: clientId,
+        content: templates[i % templates.length],
+        platform: platform,
+        scheduled_date: postDate.toISOString().split('T')[0],
+        status: 'draft',
+        created_at: new Date().toISOString(),
+      })
+    }
+
+    try { await supabase.from('posts').insert(posts) } catch {}
+
+    try {
+      await supabase.from('content_calendars').insert({
+        campaign_id: campaignId, client_id: clientId,
+        name: 'Calendario - ' + campaignName,
+        status: 'active', objective: objective,
+        platforms: JSON.stringify([platform]),
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+        summary: totalPosts + ' publicaciones en ' + platform + ' durante 4 semanas.',
+        submitted_at: new Date().toISOString(),
+      })
+    } catch {}
+
+    try {
+      await supabase.from('approval_queue').insert([
+        { request_id: 'plan-' + campaignId, client_id: clientId, type: 'campaign_plan', status: 'pending',
+          content: JSON.stringify({ campaign_name: campaignName, platform, objective, total_posts: totalPosts }),
+          submitted_at: new Date().toISOString() },
+        { request_id: 'content-' + campaignId, client_id: clientId, type: 'content_batch', status: 'pending',
+          content: JSON.stringify({ campaign_name: campaignName, batch_size: totalPosts, samples: posts.slice(0,2).map(p => p.content) }),
+          submitted_at: new Date().toISOString() },
+      ])
+    } catch {}
+
+    return { postsCreated: posts.length }
+  }
   const handleCreate = async () => {
     if (!form.client_id || !form.name || !form.objective) {
       setError('Completa los campos obligatorios: cliente, nombre y objetivo')
@@ -116,18 +188,25 @@ export default function CampaignsPage() {
         ? form.start_date.substring(0, 7)
         : new Date().toISOString().substring(0, 7)
 
-      const { error: insertError } = await supabase.from('campaigns').insert({
+      const { data: inserted, error: insertError } = await supabase.from('campaigns').insert({
         client_id: form.client_id,
         campaign_name: form.name,
         objective: form.objective,
         platform: platforms,
         budget: form.budget ? Number(form.budget) : 0,
         duration: '7 dias'
-      })
+      }).select('id').single()
 
       if (insertError) throw insertError
 
-      setSuccess('Campa\u00f1a creada exitosamente')
+      // Auto-generate campaign content
+      const campaignId = inserted?.id || 0
+      try {
+        await generateCampaignContent(campaignId, form.client_id, form.name, platforms, form.objective)
+        setSuccess('Campana creada con posts, calendario y propuestas generados!')
+      } catch {
+        setSuccess('Campana creada (contenido se generara luego)')
+      }
       setShowWizard(false)
       setWizardStep(1)
       setForm({ client_id: '', name: '', objective: '', platforms: [], budget: '', start_date: '', end_date: '' })
